@@ -1,0 +1,22 @@
+@model AutoServiceApp.Models.Car
+
+<h1>Smazat auto</h1>
+
+<div asp-validation-summary="All" class="text-danger"></div>
+
+<p>
+    Opravdu chceš smazat auto:
+    <strong>@Model.Brand @Model.Model (@Model.LicensePlate)</strong>?
+</p>
+
+<div class="mb-3">
+    <p><strong>Rok:</strong> @Model.Year</p>
+    <p><strong>Majitel:</strong> @Model.Customer?.FullName</p>
+</div>
+
+<form asp-action="Delete" method="post">
+    <input type="hidden" asp-for="Id" />
+
+    <button type="submit" class="btn btn-danger">Smazat</button>
+    <a asp-action="Index" class="btn btn-secondary">Zpět</a>
+</form>

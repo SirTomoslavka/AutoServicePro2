@@ -1,0 +1,17 @@
+@model AutoServiceApp.ViewModels.AssignMechanicsViewModel
+
+<h1>Mechanici</h1>
+
+<form asp-action="AssignMechanics" method="post">
+    <input type="hidden" asp-for="ServiceOrderId" />
+
+    <select asp-for="SelectedMechanicIds"
+            asp-items="Model.Mechanics"
+            class="form-select"
+            multiple size="8">
+    </select>
+
+    <br />
+
+    <button class="btn btn-success">Uložit</button>
+</form>

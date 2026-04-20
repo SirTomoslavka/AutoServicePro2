@@ -1,0 +1,58 @@
+@model AutoServiceApp.Models.Mechanic
+
+<h1>Detail mechanika</h1>
+
+<div class="mb-4">
+    <p><strong>Jméno:</strong> @Model.FullName</p>
+    <p><strong>Specializace:</strong> @Model.Specialization</p>
+</div>
+
+<hr />
+
+<h4>Servisní zakázky</h4>
+
+@if (Model.ServiceOrderMechanics != null && Model.ServiceOrderMechanics.Any())
+{
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>Datum</th>
+            <th>Stav</th>
+            <th>Auto</th>
+            <th>Zákazník</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var link in Model.ServiceOrderMechanics)
+        {
+            var order = link.ServiceOrder;
+
+            <tr>
+                <td>@order?.CreatedAt.ToLocalTime()</td>
+                <td>@order?.Status</td>
+                <td>@order?.Car?.Brand @order?.Car?.Model (@order?.Car?.LicensePlate)</td>
+                <td>@order?.Car?.Customer?.FullName</td>
+                <td>
+                    <a asp-controller="ServiceOrders"
+                       asp-action="Details"
+                       asp-route-id="@order?.Id">
+                        Detail
+                    </a>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>Mechanik zatím nemá žádné zakázky.</p>
+}
+
+<hr />
+
+<div class="mt-3">
+    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Edit</a>
+    <a asp-action="Index" class="btn btn-secondary">Zpět</a>
+</div>

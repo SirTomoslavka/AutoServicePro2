@@ -1,0 +1,11 @@
+@model AutoServiceApp.Models.Mechanic
+
+<h1>Nový mechanik</h1>
+
+<form asp-action="Create" method="post">
+    <input asp-for="FirstName" class="form-control mb-2" placeholder="Jméno" />
+    <input asp-for="LastName" class="form-control mb-2" placeholder="Příjmení" />
+    <input asp-for="Specialization" class="form-control mb-2" placeholder="Specializace" />
+
+    <button class="btn btn-success">Uložit</button>
+</form>

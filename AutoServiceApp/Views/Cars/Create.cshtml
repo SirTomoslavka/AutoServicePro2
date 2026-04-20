@@ -1,0 +1,36 @@
+@model AutoServiceApp.ViewModels.CarFormViewModel
+
+<h1>Nové auto</h1>
+
+<form asp-action="Create" method="post">
+    <div class="mb-3">
+        <label asp-for="Car.Brand" class="form-label"></label>
+        <input asp-for="Car.Brand" class="form-control" />
+        <span asp-validation-for="Car.Brand" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Car.Model" class="form-label"></label>
+        <input asp-for="Car.Model" class="form-control" />
+        <span asp-validation-for="Car.Model" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Car.Year" class="form-label"></label>
+        <input asp-for="Car.Year" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Car.LicensePlate" class="form-label"></label>
+        <input asp-for="Car.LicensePlate" class="form-control" />
+        <span asp-validation-for="Car.LicensePlate" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Car.CustomerId" class="form-label">Zákazník</label>
+        <select asp-for="Car.CustomerId" asp-items="Model.Customers" class="form-select"></select>
+        <span asp-validation-for="Car.CustomerId" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-success">Uložit</button>
+</form>

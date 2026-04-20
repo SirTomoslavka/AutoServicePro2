@@ -1,0 +1,38 @@
+﻿<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - AutoServiceApp</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+    <div class="container">
+        <a class="navbar-brand" asp-controller="Dashboard" asp-action="Index">Autoservis</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item"><a class="nav-link" asp-controller="Dashboard" asp-action="Index">Dashboard</a></li>
+                <li class="nav-item"><a class="nav-link" asp-controller="Customers" asp-action="Index">Zákazníci</a></li>
+                <li class="nav-item"><a class="nav-link" asp-controller="Cars" asp-action="Index">Auta</a></li>
+                <li class="nav-item"><a class="nav-link" asp-controller="ServiceOrders" asp-action="Index">Zakázky</a></li>
+                <li class="nav-item"><a class="nav-link" asp-controller="Mechanics" asp-action="Index">Mechanici</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    @RenderBody()
+</div>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script src="~/js/site.js" asp-append-version="true"></script>
+@await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

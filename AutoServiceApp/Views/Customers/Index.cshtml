@@ -1,0 +1,35 @@
+@model IEnumerable<AutoServiceApp.Models.Customer>
+
+<h1>Zákazníci</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">Nový zákazník</a>
+</p>
+
+<table class="table table-striped">
+    <thead>
+    <tr>
+        <th>Jméno</th>
+        <th>Email</th>
+        <th>Telefon</th>
+        <th>Počet aut</th>
+        <th></th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>@item.FullName</td>
+            <td>@item.Email</td>
+            <td>@item.Phone</td>
+            <td>@item.Cars.Count</td>
+            <td>
+                <a asp-action="Detail" asp-route-id="@item.Id">Detail</a> |
+                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>

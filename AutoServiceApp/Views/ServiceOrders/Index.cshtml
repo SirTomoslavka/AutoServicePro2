@@ -1,0 +1,31 @@
+@model IEnumerable<AutoServiceApp.Models.ServiceOrder>
+
+<h1>Zakázky</h1>
+
+<a asp-action="Create" class="btn btn-primary mb-3">Nová zakázka</a>
+
+<table class="table">
+    <thead>
+    <tr>
+        <th>Datum</th>
+        <th>Stav</th>
+        <th>Auto</th>
+        <th>Zákazník</th>
+        <th></th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>@item.CreatedAt.ToLocalTime()</td>
+            <td>@item.Status</td>
+            <td>@item.Car?.Brand @item.Car?.Model</td>
+            <td>@item.Car?.Customer?.FullName</td>
+            <td>
+                <a asp-action="Detail" asp-route-id="@item.Id">Detail</a>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>

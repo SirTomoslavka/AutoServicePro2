@@ -1,0 +1,62 @@
+@model AutoServiceApp.Models.ServiceOrder
+
+<h1>Detail zakázky</h1>
+
+<div class="mb-4">
+    <h4>Zakázka</h4>
+    <p><strong>Popis:</strong> @Model.Description</p>
+    <p><strong>Stav:</strong> @Model.Status</p>
+    <p><strong>Datum:</strong> @Model.CreatedAt.ToLocalTime()</p>
+</div>
+<div class="mb-4">
+    <h4>Auto a zákazník</h4>
+    <p><strong>Auto:</strong> @Model.Car?.Brand @Model.Car?.Model (@Model.Car?.LicensePlate)</p>
+    <p><strong>Zákazník:</strong> @Model.Car?.Customer?.FullName</p>
+</div>
+
+<div class="mb-4">
+    <h4>Úkony</h4>
+    <table class="table table-bordered">
+        <thead>
+        <tr>
+            <th>Název</th>
+            <th>Cena</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var task in Model.Tasks)
+        {
+            <tr>
+                <td>@task.Name</td>
+                <td>@task.Price Kč</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+    <p><strong>Celkem:</strong> @Model.TotalPrice Kč</p>
+</div>
+
+<div class="mb-4">
+    <h4>Mechanici</h4>
+    <ul>
+        @foreach (var item in Model.ServiceOrderMechanics)
+        {
+            <li>@item.Mechanic?.FullName (@item.Mechanic?.Specialization)</li>
+        }
+    </ul>
+    <a asp-action="AssignMechanics" asp-route-id="@Model.Id" class="btn btn-outline-primary">Přiřadit mechaniky</a>
+</div>
+
+<div class="mb-4">
+    <h4>Přidat úkon</h4>
+    <form asp-action="AddTask" method="post">
+        <input type="hidden" name="serviceOrderId" value="@Model.Id" />
+        <div class="mb-2">
+            <input name="name" class="form-control" placeholder="Název úkonu" />
+        </div>
+        <div class="mb-2">
+            <input name="price" type="number" step="0.01" class="form-control" placeholder="Cena" />
+        </div>
+        <button type="submit" class="btn btn-success">Přidat</button>
+    </form>
+</div>

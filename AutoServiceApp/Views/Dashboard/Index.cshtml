@@ -1,0 +1,41 @@
+@model AutoServiceApp.ViewModels.DashboardViewModel
+
+<h1>Dashboard autoservisu</h1>
+
+<div class="row">
+    <div class="col-md-3">
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5>Zákazníci</h5>
+                <p>@Model.CustomersCount</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5>Auta</h5>
+                <p>@Model.CarsCount</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5>Zakázky</h5>
+                <p>@Model.ServiceOrdersCount</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5>Tržba</h5>
+                <p>@Model.TotalRevenue Kč</p>
+            </div>
+        </div>
+    </div>
+</div>
