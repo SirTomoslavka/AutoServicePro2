@@ -1,11 +1,11 @@
 ﻿services:
   postgres:
     image: postgres:17
-    container_name: autoservice
+    container_name: autoservicepro2
     environment:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: Heslo1234.
-      POSTGRES_DB: autoservice-db
+      POSTGRES_DB: autoservicepro2-db
     ports:
       - "5454:5432"
     volumes:

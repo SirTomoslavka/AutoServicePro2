@@ -8,34 +8,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e1d15937-8924-40cf-ab66-a6fbf2ead102" name="Changes" comment="init">
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.AutoServiceApp/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.AutoServiceApp/.idea/encodings.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.AutoServiceApp/.idea/indexLayout.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.AutoServiceApp/.idea/vcs.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/AutoServiceApp.sln" beforeDir="false" afterPath="$PROJECT_DIR$/AutoServiceApp.sln" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/AutoServiceApp/AutoServiceApp.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/AutoServiceApp/AutoServiceApp.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/AutoServiceApp/Controllers/CarsController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/AutoServiceApp/Controllers/CarsController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/AutoServiceApp/Controllers/CustomersController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/AutoServiceApp/Controllers/CustomersController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/AutoServiceApp/Controllers/DashboardController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/AutoServiceApp/Controllers/DashboardController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/AutoServiceApp/Controllers/MechanicController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/AutoServiceApp/Controllers/MechanicController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/AutoServiceApp/Controllers/ServiceOrdersController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/AutoServiceApp/Controllers/ServiceOrdersController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/AutoServiceApp/Data/AppDbContext.cs" beforeDir="false" afterPath="$PROJECT_DIR$/AutoServiceApp/Data/AppDbContext.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/AutoServiceApp/Migrations/AppDbContextModelSnapshot.cs" beforeDir="false" afterPath="$PROJECT_DIR$/AutoServiceApp/Migrations/AppDbContextModelSnapshot.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/AutoServiceApp/Models/DbInitializer.cs" beforeDir="false" afterPath="$PROJECT_DIR$/AutoServiceApp/Models/DbInitializer.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/AutoServiceApp/Models/ServiceOrder.cs" beforeDir="false" afterPath="$PROJECT_DIR$/AutoServiceApp/Models/ServiceOrder.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/AutoServiceApp/Models/ServiceTask.cs" beforeDir="false" afterPath="$PROJECT_DIR$/AutoServiceApp/Models/ServiceTask.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/AutoServiceApp/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/AutoServiceApp/Program.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/AutoServiceApp/ViewModels/DashboardViewModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/AutoServiceApp/ViewModels/DashboardViewModel.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/AutoServiceApp/Views/Dashboard/Index.cshtml" beforeDir="false" afterPath="$PROJECT_DIR$/AutoServiceApp/Views/Dashboard/Index.cshtml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/AutoServiceApp/Views/Mechanics/Detail.cshtml" beforeDir="false" afterPath="$PROJECT_DIR$/AutoServiceApp/Views/Mechanics/Detail.cshtml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/AutoServiceApp/Views/Mechanics/Index.cshtml" beforeDir="false" afterPath="$PROJECT_DIR$/AutoServiceApp/Views/Mechanics/Index.cshtml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/AutoServiceApp/Views/ServiceOrders/Detail.cshtml" beforeDir="false" afterPath="$PROJECT_DIR$/AutoServiceApp/Views/ServiceOrders/Detail.cshtml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/AutoServiceApp/Views/ServiceOrders/Index.cshtml" beforeDir="false" afterPath="$PROJECT_DIR$/AutoServiceApp/Views/ServiceOrders/Index.cshtml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/AutoServiceApp/Views/Shared/_Layout.cshtml" beforeDir="false" afterPath="$PROJECT_DIR$/AutoServiceApp/Views/Shared/_Layout.cshtml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/AutoServiceApp/Views/_ViewImports.cshtml" beforeDir="false" afterPath="$PROJECT_DIR$/AutoServiceApp/Views/_ViewImports.cshtml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/AutoServiceApp/wwwroot/css/site.css" beforeDir="false" afterPath="$PROJECT_DIR$/AutoServiceApp/wwwroot/css/site.css" afterDir="false" />
-    </list>
+    <list default="true" id="e1d15937-8924-40cf-ab66-a6fbf2ead102" name="Changes" comment="init" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -172,7 +145,7 @@
       <option name="presentableId" value="Default" />
       <updated>1776110646476</updated>
       <workItem from="1776110647533" duration="5704000" />
-      <workItem from="1776690445982" duration="918000" />
+      <workItem from="1776690445982" duration="1317000" />
     </task>
     <task id="LOCAL-00001" summary="init">
       <option name="closed" value="true" />
