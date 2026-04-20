@@ -1,0 +1,20 @@
+@model AutoServiceApp.Models.ServiceOrder
+
+<h1>Smazat zakázku</h1>
+
+<div asp-validation-summary="All" class="text-danger"></div>
+
+<p>Opravdu chceš smazat tuto zakázku?</p>
+
+<div class="mb-3">
+    <p><strong>Popis:</strong> @Model.Description</p>
+    <p><strong>Stav:</strong> @Model.Status</p>
+    <p><strong>Auto:</strong> @Model.Car?.Brand @Model.Car?.Model (@Model.Car?.LicensePlate)</p>
+    <p><strong>Datum:</strong> @Model.CreatedAt.ToLocalTime()</p>
+</div>
+
+<form asp-action="Delete" method="post">
+    <input type="hidden" asp-for="Id" />
+    <button type="submit" class="btn btn-danger">Smazat</button>
+    <a asp-action="Index" class="btn btn-secondary">Zpět</a>
+</form>

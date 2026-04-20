@@ -2,13 +2,23 @@
 
 <h1>Zakázky</h1>
 
-<a asp-action="Create" class="btn btn-primary mb-3">Nová zakázka</a>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <a asp-action="Create" class="btn btn-primary">Nová zakázka</a>
+    <div class="btn-group" role="group">
+        <a asp-action="Index" class="btn btn-sm @(ViewBag.SelectedStatus == null ? "btn-dark" : "btn-outline-dark")">Vše</a>
+        <a asp-action="Index" asp-route-status="0" class="btn btn-sm @(ViewBag.SelectedStatus != null && (int)ViewBag.SelectedStatus == 0 ? "btn-info" : "btn-outline-info")">Nové</a>
+        <a asp-action="Index" asp-route-status="1" class="btn btn-sm @(ViewBag.SelectedStatus != null && (int)ViewBag.SelectedStatus == 1 ? "btn-warning" : "btn-outline-warning")">V řešení</a>
+        <a asp-action="Index" asp-route-status="2" class="btn btn-sm @(ViewBag.SelectedStatus != null && (int)ViewBag.SelectedStatus == 2 ? "btn-success" : "btn-outline-success")">Hotovo</a>
+        <a asp-action="Index" asp-route-status="3" class="btn btn-sm @(ViewBag.SelectedStatus != null && (int)ViewBag.SelectedStatus == 3 ? "btn-secondary" : "btn-outline-secondary")">Zrušeno</a>
+    </div>
+</div>
 
-<table class="table">
+<table class="table table-striped">
     <thead>
     <tr>
         <th>Datum</th>
         <th>Stav</th>
+        <th>Popis</th>
         <th>Auto</th>
         <th>Zákazník</th>
         <th></th>
@@ -18,12 +28,31 @@
     @foreach (var item in Model)
     {
         <tr>
-            <td>@item.CreatedAt.ToLocalTime()</td>
-            <td>@item.Status</td>
+            <td>@item.CreatedAt.ToLocalTime().ToString("dd.MM.yyyy")</td>
+            <td>
+                @switch (item.Status)
+                {
+                    case AutoServiceApp.Models.ServiceOrderStatus.New:
+                        <span class="badge bg-info">Nová</span>
+                        break;
+                    case AutoServiceApp.Models.ServiceOrderStatus.InProgress:
+                        <span class="badge bg-warning text-dark">V řešení</span>
+                        break;
+                    case AutoServiceApp.Models.ServiceOrderStatus.Done:
+                        <span class="badge bg-success">Hotovo</span>
+                        break;
+                    case AutoServiceApp.Models.ServiceOrderStatus.Cancelled:
+                        <span class="badge bg-secondary">Zrušeno</span>
+                        break;
+                }
+            </td>
+            <td>@(item.Description.Length > 60 ? item.Description[..60] + "..." : item.Description)</td>
             <td>@item.Car?.Brand @item.Car?.Model</td>
             <td>@item.Car?.Customer?.FullName</td>
             <td>
-                <a asp-action="Detail" asp-route-id="@item.Id">Detail</a>
+                <a asp-action="Detail" asp-route-id="@item.Id">Detail</a> |
+                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                <a asp-action="Delete" asp-route-id="@item.Id">Smazat</a>
             </td>
         </tr>
     }

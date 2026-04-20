@@ -1,0 +1,81 @@
+@model AutoServiceApp.Models.Invoice
+
+<h1>Faktura @Model.InvoiceNumber</h1>
+
+<div class="card mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h4 class="mb-0">Údaje faktury</h4>
+        @if (Model.IsPaid)
+        {
+            <span class="badge bg-success fs-6">Zaplaceno</span>
+        }
+        else
+        {
+            <span class="badge bg-danger fs-6">Nezaplaceno</span>
+        }
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <p><strong>Číslo faktury:</strong> @Model.InvoiceNumber</p>
+                <p><strong>Datum vystavení:</strong> @Model.IssuedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</p>
+                @if (Model.PaidAt.HasValue)
+                {
+                    <p><strong>Datum úhrady:</strong> @Model.PaidAt.Value.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</p>
+                }
+            </div>
+            <div class="col-md-6">
+                <p><strong>Zákazník:</strong> @Model.ServiceOrder?.Car?.Customer?.FullName</p>
+                <p><strong>Auto:</strong> @Model.ServiceOrder?.Car?.Brand @Model.ServiceOrder?.Car?.Model (@Model.ServiceOrder?.Car?.LicensePlate)</p>
+            </div>
+        </div>
+        @if (!string.IsNullOrEmpty(Model.Note))
+        {
+            <p><strong>Poznámka:</strong> @Model.Note</p>
+        }
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header"><h4 class="mb-0">Položky</h4></div>
+    <div class="card-body">
+        <table class="table table-bordered">
+            <thead>
+            <tr>
+                <th>Úkon</th>
+                <th class="text-end">Cena</th>
+            </tr>
+            </thead>
+            <tbody>
+            @if (Model.ServiceOrder?.Tasks != null)
+            {
+                @foreach (var task in Model.ServiceOrder.Tasks)
+                {
+                    <tr>
+                        <td>@task.Name</td>
+                        <td class="text-end">@task.Price.ToString("N2") Kč</td>
+                    </tr>
+                }
+            }
+            </tbody>
+            <tfoot>
+            <tr class="fw-bold">
+                <td>Celkem</td>
+                <td class="text-end">@Model.TotalAmount.ToString("N2") Kč</td>
+            </tr>
+            </tfoot>
+        </table>
+    </div>
+</div>
+
+<div class="d-flex gap-2">
+    @if (!Model.IsPaid)
+    {
+        <form asp-action="MarkAsPaid" method="post">
+            <input type="hidden" name="id" value="@Model.Id" />
+            <button type="submit" class="btn btn-success">Označit jako zaplaceno</button>
+        </form>
+    }
+    <a asp-controller="ServiceOrders" asp-action="Detail" asp-route-id="@Model.ServiceOrderId" class="btn btn-outline-primary">Zobrazit zakázku</a>
+    <a asp-action="Index" class="btn btn-secondary">Zpět na faktury</a>
+</div>

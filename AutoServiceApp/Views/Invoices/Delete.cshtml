@@ -1,0 +1,18 @@
+@model AutoServiceApp.Models.Invoice
+
+<h1>Smazat fakturu</h1>
+
+<div asp-validation-summary="All" class="text-danger"></div>
+
+<p>Opravdu chceš smazat fakturu <strong>@Model.InvoiceNumber</strong>?</p>
+
+<div class="mb-3">
+    <p><strong>Částka:</strong> @Model.TotalAmount.ToString("N2") Kč</p>
+    <p><strong>Stav:</strong> @(Model.IsPaid ? "Zaplaceno" : "Nezaplaceno")</p>
+</div>
+
+<form asp-action="Delete" method="post">
+    <input type="hidden" asp-for="Id" />
+    <button type="submit" class="btn btn-danger">Smazat</button>
+    <a asp-action="Index" class="btn btn-secondary">Zpět</a>
+</form>

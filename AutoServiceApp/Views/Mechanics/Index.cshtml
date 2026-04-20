@@ -4,11 +4,13 @@
 
 <a asp-action="Create" class="btn btn-primary mb-3">Nový</a>
 
-<table class="table">
+<table class="table table-striped">
     <thead>
     <tr>
         <th>Jméno</th>
         <th>Specializace</th>
+        <th>Počet zakázek</th>
+        <th></th>
     </tr>
     </thead>
     <tbody>
@@ -17,6 +19,12 @@
         <tr>
             <td>@m.FullName</td>
             <td>@m.Specialization</td>
+            <td>@m.ServiceOrderMechanics.Count</td>
+            <td>
+                <a asp-action="Detail" asp-route-id="@m.Id">Detail</a> |
+                <a asp-action="Edit" asp-route-id="@m.Id">Edit</a> |
+                <a asp-action="Delete" asp-route-id="@m.Id">Delete</a>
+            </td>
         </tr>
     }
     </tbody>

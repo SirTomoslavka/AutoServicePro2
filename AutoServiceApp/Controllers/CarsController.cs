@@ -1,48 +1,33 @@
-using AutoServiceApp.Data;
 using AutoServiceApp.Models;
+using AutoServiceApp.Services;
 using AutoServiceApp.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 
 namespace AutoServiceApp.Controllers;
 
+[Authorize]
 public class CarsController : Controller
 {
-    private readonly AppDbContext _db;
+    private readonly ICarService _cars;
+    private readonly ICustomerService _customers;
 
-    public CarsController(AppDbContext db)
+    public CarsController(ICarService cars, ICustomerService customers)
     {
-        _db = db;
+        _cars = cars;
+        _customers = customers;
     }
 
-    public async Task<IActionResult> Index()
-    {
-        var cars = await _db.Cars
-            .Include(x => x.Customer)
-            .OrderBy(x => x.Brand)
-            .ThenBy(x => x.Model)
-            .ToListAsync();
-
-        return View(cars);
-    }
+    public async Task<IActionResult> Index() => View(await _cars.GetAllAsync());
 
     public async Task<IActionResult> Detail(Guid id)
     {
-        var car = await _db.Cars
-            .Include(x => x.Customer)
-            .Include(x => x.ServiceOrders)
-            .FirstOrDefaultAsync(x => x.Id == id);
-
-        if (car == null) return NotFound();
-
-        return View(car);
+        var car = await _cars.GetByIdAsync(id);
+        return car == null ? NotFound() : View(car);
     }
 
-    public async Task<IActionResult> Create()
-    {
-        return View(await BuildFormVm(new Car()));
-    }
+    public async Task<IActionResult> Create() =>
+        View(new CarFormViewModel { Car = new Car(), Customers = await _customers.GetSelectListAsync() });
 
     [HttpPost]
     [ValidateAntiForgeryToken]
@@ -50,21 +35,18 @@ public class CarsController : Controller
     {
         if (!ModelState.IsValid)
         {
-            vm.Customers = await GetCustomersSelectList();
+            vm.Customers = await _customers.GetSelectListAsync();
             return View(vm);
         }
-
-        _db.Cars.Add(vm.Car);
-        await _db.SaveChangesAsync();
+        await _cars.CreateAsync(vm.Car);
         return RedirectToAction(nameof(Index));
     }
 
     public async Task<IActionResult> Edit(Guid id)
     {
-        var car = await _db.Cars.FindAsync(id);
+        var car = await _cars.GetByIdAsync(id);
         if (car == null) return NotFound();
-
-        return View(await BuildFormVm(car));
+        return View(new CarFormViewModel { Car = car, Customers = await _customers.GetSelectListAsync() });
     }
 
     [HttpPost]
@@ -72,67 +54,33 @@ public class CarsController : Controller
     public async Task<IActionResult> Edit(Guid id, CarFormViewModel vm)
     {
         if (id != vm.Car.Id) return BadRequest();
-
         if (!ModelState.IsValid)
         {
-            vm.Customers = await GetCustomersSelectList();
+            vm.Customers = await _customers.GetSelectListAsync();
             return View(vm);
         }
-
-        _db.Cars.Update(vm.Car);
-        await _db.SaveChangesAsync();
+        await _cars.UpdateAsync(vm.Car);
         return RedirectToAction(nameof(Index));
     }
 
     public async Task<IActionResult> Delete(Guid id)
     {
-        var car = await _db.Cars
-            .Include(x => x.Customer)
-            .FirstOrDefaultAsync(x => x.Id == id);
-
-        if (car == null) return NotFound();
-
-        return View(car);
+        var car = await _cars.GetByIdAsync(id);
+        return car == null ? NotFound() : View(car);
     }
 
     [HttpPost, ActionName("Delete")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(Guid id)
     {
-        var car = await _db.Cars
-            .Include(x => x.ServiceOrders)
-            .FirstOrDefaultAsync(x => x.Id == id);
-
-        if (car == null) return NotFound();
-        if (car.ServiceOrders.Any())
+        var result = await _cars.DeleteAsync(id);
+        if (result == null) return NotFound();
+        if (!result.Value)
         {
+            var car = await _cars.GetByIdAsync(id);
             ModelState.AddModelError(string.Empty, "Auto nelze smazat, protože má servisní zakázky.");
             return View(car);
         }
-
-        _db.Cars.Remove(car);
-        await _db.SaveChangesAsync();
         return RedirectToAction(nameof(Index));
-    }
-
-    private async Task<CarFormViewModel> BuildFormVm(Car car)
-    {
-        return new CarFormViewModel
-        {
-            Car = car,
-            Customers = await GetCustomersSelectList()
-        };
-    }
-
-    private async Task<IEnumerable<SelectListItem>> GetCustomersSelectList()
-    {
-        return await _db.Customers
-            .OrderBy(x => x.LastName)
-            .Select(x => new SelectListItem
-            {
-                Value = x.Id.ToString(),
-                Text = x.FirstName + " " + x.LastName
-            })
-            .ToListAsync();
     }
 }

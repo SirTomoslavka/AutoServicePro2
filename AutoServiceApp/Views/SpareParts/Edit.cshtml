@@ -1,0 +1,37 @@
+@model AutoServiceApp.Models.SparePart
+
+<h1>Upravit náhradní díl</h1>
+
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="Id" />
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="mb-3">
+        <label asp-for="Name" class="form-label">Název</label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="CatalogNumber" class="form-label">Katalogové číslo</label>
+        <input asp-for="CatalogNumber" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="UnitPrice" class="form-label">Cena za kus (Kč)</label>
+        <input asp-for="UnitPrice" type="number" step="0.01" min="0" class="form-control" />
+        <span asp-validation-for="UnitPrice" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="StockQuantity" class="form-label">Počet skladem</label>
+        <input asp-for="StockQuantity" type="number" min="0" class="form-control" />
+    </div>
+
+    <button type="submit" class="btn btn-success">Uložit</button>
+    <a asp-action="Index" class="btn btn-secondary">Zpět</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

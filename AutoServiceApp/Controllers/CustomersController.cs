@@ -1,61 +1,40 @@
-using AutoServiceApp.Data;
 using AutoServiceApp.Models;
+using AutoServiceApp.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace AutoServiceApp.Controllers;
 
+[Authorize]
 public class CustomersController : Controller
 {
-    private readonly AppDbContext _db;
+    private readonly ICustomerService _customers;
 
-    public CustomersController(AppDbContext db)
-    {
-        _db = db;
-    }
+    public CustomersController(ICustomerService customers) => _customers = customers;
 
-    public async Task<IActionResult> Index()
-    {
-        var customers = await _db.Customers
-            .Include(x => x.Cars)
-            .OrderBy(x => x.LastName)
-            .ToListAsync();
-        return View(customers);
-    }
+    public async Task<IActionResult> Index() => View(await _customers.GetAllAsync());
 
     public async Task<IActionResult> Detail(Guid id)
     {
-        var customer = await _db.Customers
-            .Include(x => x.Cars)
-            .FirstOrDefaultAsync(x => x.Id == id);
-
-        if (customer == null) return NotFound();
-
-        return View(customer);
+        var customer = await _customers.GetByIdAsync(id);
+        return customer == null ? NotFound() : View(customer);
     }
 
-    public IActionResult Create()
-    {
-        return View(new Customer());
-    }
+    public IActionResult Create() => View(new Customer());
 
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(Customer customer)
     {
         if (!ModelState.IsValid) return View(customer);
-
-        _db.Customers.Add(customer);
-        await _db.SaveChangesAsync();
+        await _customers.CreateAsync(customer);
         return RedirectToAction(nameof(Index));
     }
 
     public async Task<IActionResult> Edit(Guid id)
     {
-        var customer = await _db.Customers.FindAsync(id);
-        if (customer == null) return NotFound();
-
-        return View(customer);
+        var customer = await _customers.GetByIdAsync(id);
+        return customer == null ? NotFound() : View(customer);
     }
 
     [HttpPost]
@@ -64,37 +43,28 @@ public class CustomersController : Controller
     {
         if (id != customer.Id) return BadRequest();
         if (!ModelState.IsValid) return View(customer);
-
-        _db.Customers.Update(customer);
-        await _db.SaveChangesAsync();
+        await _customers.UpdateAsync(customer);
         return RedirectToAction(nameof(Index));
     }
 
     public async Task<IActionResult> Delete(Guid id)
     {
-        var customer = await _db.Customers.FirstOrDefaultAsync(x => x.Id == id);
-        if (customer == null) return NotFound();
-
-        return View(customer);
+        var customer = await _customers.GetByIdAsync(id);
+        return customer == null ? NotFound() : View(customer);
     }
 
     [HttpPost, ActionName("Delete")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(Guid id)
     {
-        var customer = await _db.Customers
-            .Include(x => x.Cars)
-            .FirstOrDefaultAsync(x => x.Id == id);
-
-        if (customer == null) return NotFound();
-        if (customer.Cars.Any())
+        var result = await _customers.DeleteAsync(id);
+        if (result == null) return NotFound();
+        if (!result.Value)
         {
+            var customer = await _customers.GetByIdAsync(id);
             ModelState.AddModelError(string.Empty, "Zákazníka nelze smazat, protože má přiřazená auta.");
             return View(customer);
         }
-
-        _db.Customers.Remove(customer);
-        await _db.SaveChangesAsync();
         return RedirectToAction(nameof(Index));
     }
 }

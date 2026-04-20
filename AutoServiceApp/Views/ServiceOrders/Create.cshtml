@@ -1,0 +1,28 @@
+@model AutoServiceApp.ViewModels.ServiceOrderFormViewModel
+
+<h1>Nová zakázka</h1>
+
+<form asp-action="Create" method="post">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="mb-3">
+        <label asp-for="ServiceOrder.CarId" class="form-label">Auto</label>
+        <select asp-for="ServiceOrder.CarId" asp-items="Model.Cars" class="form-select">
+            <option value="">-- Vyberte auto --</option>
+        </select>
+        <span asp-validation-for="ServiceOrder.CarId" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="ServiceOrder.Description" class="form-label">Popis</label>
+        <textarea asp-for="ServiceOrder.Description" class="form-control" rows="4"></textarea>
+        <span asp-validation-for="ServiceOrder.Description" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-success">Vytvořit</button>
+    <a asp-action="Index" class="btn btn-secondary">Zpět</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

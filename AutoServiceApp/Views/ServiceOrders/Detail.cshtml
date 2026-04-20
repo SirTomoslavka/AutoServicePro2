@@ -2,61 +2,199 @@
 
 <h1>Detail zakázky</h1>
 
-<div class="mb-4">
-    <h4>Zakázka</h4>
-    <p><strong>Popis:</strong> @Model.Description</p>
-    <p><strong>Stav:</strong> @Model.Status</p>
-    <p><strong>Datum:</strong> @Model.CreatedAt.ToLocalTime()</p>
-</div>
-<div class="mb-4">
-    <h4>Auto a zákazník</h4>
-    <p><strong>Auto:</strong> @Model.Car?.Brand @Model.Car?.Model (@Model.Car?.LicensePlate)</p>
-    <p><strong>Zákazník:</strong> @Model.Car?.Customer?.FullName</p>
+<div class="card mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h4 class="mb-0">Zakázka</h4>
+        <div>
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-sm btn-warning">Upravit</a>
+            <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-sm btn-danger">Smazat</a>
+        </div>
+    </div>
+    <div class="card-body">
+        <p><strong>Popis:</strong> @Model.Description</p>
+        <p>
+            <strong>Stav:</strong>
+            @switch (Model.Status)
+            {
+                case AutoServiceApp.Models.ServiceOrderStatus.New:
+                    <span class="badge bg-info">Nová</span>
+                    break;
+                case AutoServiceApp.Models.ServiceOrderStatus.InProgress:
+                    <span class="badge bg-warning text-dark">V řešení</span>
+                    break;
+                case AutoServiceApp.Models.ServiceOrderStatus.Done:
+                    <span class="badge bg-success">Hotovo</span>
+                    break;
+                case AutoServiceApp.Models.ServiceOrderStatus.Cancelled:
+                    <span class="badge bg-secondary">Zrušeno</span>
+                    break;
+            }
+        </p>
+        <p><strong>Datum:</strong> @Model.CreatedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</p>
+    </div>
 </div>
 
-<div class="mb-4">
-    <h4>Úkony</h4>
-    <table class="table table-bordered">
-        <thead>
-        <tr>
-            <th>Název</th>
-            <th>Cena</th>
-        </tr>
-        </thead>
-        <tbody>
+<div class="card mb-4">
+    <div class="card-header"><h4 class="mb-0">Změna stavu</h4></div>
+    <div class="card-body">
+        <form asp-action="ChangeStatus" method="post" class="d-flex gap-2 flex-wrap">
+            <input type="hidden" name="id" value="@Model.Id" />
+            @if (Model.Status != AutoServiceApp.Models.ServiceOrderStatus.New)
+            {
+                <button type="submit" name="newStatus" value="@((int)AutoServiceApp.Models.ServiceOrderStatus.New)" class="btn btn-info">Nová</button>
+            }
+            @if (Model.Status != AutoServiceApp.Models.ServiceOrderStatus.InProgress)
+            {
+                <button type="submit" name="newStatus" value="@((int)AutoServiceApp.Models.ServiceOrderStatus.InProgress)" class="btn btn-warning">V řešení</button>
+            }
+            @if (Model.Status != AutoServiceApp.Models.ServiceOrderStatus.Done)
+            {
+                <button type="submit" name="newStatus" value="@((int)AutoServiceApp.Models.ServiceOrderStatus.Done)" class="btn btn-success">Hotovo</button>
+            }
+            @if (Model.Status != AutoServiceApp.Models.ServiceOrderStatus.Cancelled)
+            {
+                <button type="submit" name="newStatus" value="@((int)AutoServiceApp.Models.ServiceOrderStatus.Cancelled)" class="btn btn-secondary">Zrušeno</button>
+            }
+        </form>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header"><h4 class="mb-0">Auto a zákazník</h4></div>
+    <div class="card-body">
+        <p><strong>Auto:</strong> @Model.Car?.Brand @Model.Car?.Model (@Model.Car?.LicensePlate)</p>
+        <p><strong>Zákazník:</strong> @Model.Car?.Customer?.FullName</p>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header"><h4 class="mb-0">Úkony</h4></div>
+    <div class="card-body">
         @foreach (var task in Model.Tasks)
         {
-            <tr>
-                <td>@task.Name</td>
-                <td>@task.Price Kč</td>
-            </tr>
+            <div class="border rounded p-3 mb-3">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <strong>@task.Name</strong>
+                    <span class="text-muted">@task.Price.ToString("N2") Kč (práce)</span>
+                </div>
+
+                @if (task.ServiceTaskParts.Any())
+                {
+                    <table class="table table-sm table-bordered mb-2">
+                        <thead>
+                        <tr>
+                            <th>Díl</th>
+                            <th>Počet</th>
+                            <th>Cena/ks</th>
+                            <th>Celkem</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        @foreach (var stp in task.ServiceTaskParts)
+                        {
+                            <tr>
+                                <td>@stp.SparePart?.Name</td>
+                                <td>@stp.Quantity</td>
+                                <td>@stp.UnitPrice.ToString("N2") Kč</td>
+                                <td>@stp.TotalPrice.ToString("N2") Kč</td>
+                                <td>
+                                    <form asp-action="RemovePartFromTask" method="post" class="d-inline">
+                                        <input type="hidden" name="serviceOrderId" value="@Model.Id" />
+                                        <input type="hidden" name="serviceTaskPartId" value="@stp.Id" />
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">✕</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
+                }
+
+                <form asp-action="AddPartToTask" method="post" class="row g-2 align-items-end mt-1">
+                    <input type="hidden" name="serviceOrderId" value="@Model.Id" />
+                    <input type="hidden" name="serviceTaskId" value="@task.Id" />
+                    <div class="col-md-6">
+                        <select name="sparePartId" class="form-select form-select-sm" required>
+                            <option value="">-- Vyberte díl --</option>
+                            @foreach (var part in (IEnumerable<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>)ViewBag.SpareParts)
+                            {
+                                <option value="@part.Value">@part.Text</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <input name="quantity" type="number" min="1" value="1" class="form-control form-control-sm" placeholder="Počet" />
+                    </div>
+                    <div class="col-md-3">
+                        <button type="submit" class="btn btn-sm btn-outline-success w-100">Přidat díl</button>
+                    </div>
+                </form>
+            </div>
         }
-        </tbody>
-    </table>
-    <p><strong>Celkem:</strong> @Model.TotalPrice Kč</p>
+
+        <p class="fw-bold text-end">Celkem za úkony: @Model.TotalPrice.ToString("N2") Kč</p>
+
+        <hr />
+        <h5>Přidat úkon</h5>
+        <form asp-action="AddTask" method="post" class="row g-2 align-items-end">
+            <input type="hidden" name="serviceOrderId" value="@Model.Id" />
+            <div class="col-md-5">
+                <input name="name" class="form-control" placeholder="Název úkonu" required />
+            </div>
+            <div class="col-md-4">
+                <input name="price" type="number" step="0.01" min="0" class="form-control" placeholder="Cena za práci" required />
+            </div>
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-success w-100">Přidat</button>
+            </div>
+        </form>
+    </div>
 </div>
 
-<div class="mb-4">
-    <h4>Mechanici</h4>
-    <ul>
-        @foreach (var item in Model.ServiceOrderMechanics)
+<div class="card mb-4">
+    <div class="card-header"><h4 class="mb-0">Mechanici</h4></div>
+    <div class="card-body">
+        @if (Model.ServiceOrderMechanics.Any())
         {
-            <li>@item.Mechanic?.FullName (@item.Mechanic?.Specialization)</li>
+            <ul class="list-group mb-3">
+                @foreach (var item in Model.ServiceOrderMechanics)
+                {
+                    <li class="list-group-item">@item.Mechanic?.FullName <span class="text-muted">(@item.Mechanic?.Specialization)</span></li>
+                }
+            </ul>
         }
-    </ul>
-    <a asp-action="AssignMechanics" asp-route-id="@Model.Id" class="btn btn-outline-primary">Přiřadit mechaniky</a>
+        else
+        {
+            <p class="text-muted">Žádní mechanici zatím nepřiřazeni.</p>
+        }
+        <a asp-action="AssignMechanics" asp-route-id="@Model.Id" class="btn btn-outline-primary">Přiřadit mechaniky</a>
+    </div>
 </div>
 
-<div class="mb-4">
-    <h4>Přidat úkon</h4>
-    <form asp-action="AddTask" method="post">
-        <input type="hidden" name="serviceOrderId" value="@Model.Id" />
-        <div class="mb-2">
-            <input name="name" class="form-control" placeholder="Název úkonu" />
-        </div>
-        <div class="mb-2">
-            <input name="price" type="number" step="0.01" class="form-control" placeholder="Cena" />
-        </div>
-        <button type="submit" class="btn btn-success">Přidat</button>
-    </form>
+<div class="card mb-4">
+    <div class="card-header"><h4 class="mb-0">Faktura</h4></div>
+    <div class="card-body">
+        @if (Model.Invoice != null)
+        {
+            <p>
+                Faktura <strong>@Model.Invoice.InvoiceNumber</strong> —
+                @(Model.Invoice.IsPaid ? "Zaplaceno" : "Nezaplaceno")
+            </p>
+            <a asp-controller="Invoices" asp-action="Detail" asp-route-id="@Model.Invoice.Id" class="btn btn-outline-primary">Zobrazit fakturu</a>
+        }
+        else if (Model.Status == AutoServiceApp.Models.ServiceOrderStatus.Done)
+        {
+            <form asp-action="GenerateInvoice" method="post">
+                <input type="hidden" name="serviceOrderId" value="@Model.Id" />
+                <button type="submit" class="btn btn-primary">Vygenerovat fakturu</button>
+            </form>
+        }
+        else
+        {
+            <p class="text-muted">Faktura bude dostupná po dokončení zakázky.</p>
+        }
+    </div>
 </div>
+
+<a asp-action="Index" class="btn btn-secondary">Zpět na seznam</a>

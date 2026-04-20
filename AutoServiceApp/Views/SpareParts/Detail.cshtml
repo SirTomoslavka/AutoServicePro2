@@ -1,0 +1,43 @@
+@model AutoServiceApp.Models.SparePart
+
+<h1>Detail dílu</h1>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <p><strong>Název:</strong> @Model.Name</p>
+        <p><strong>Katalogové číslo:</strong> @(Model.CatalogNumber ?? "—")</p>
+        <p><strong>Cena za kus:</strong> @Model.UnitPrice.ToString("N2") Kč</p>
+        <p><strong>Skladem:</strong> @Model.StockQuantity ks</p>
+    </div>
+</div>
+
+@if (Model.ServiceTaskParts.Any())
+{
+    <div class="card mb-4">
+        <div class="card-header"><h5 class="mb-0">Použití v úkonech</h5></div>
+        <div class="card-body">
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th>Úkon</th>
+                    <th>Počet</th>
+                    <th>Cena za kus</th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (var stp in Model.ServiceTaskParts)
+                {
+                    <tr>
+                        <td>@stp.ServiceTask?.Name</td>
+                        <td>@stp.Quantity</td>
+                        <td>@stp.UnitPrice.ToString("N2") Kč</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+
+<a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Edit</a>
+<a asp-action="Index" class="btn btn-secondary">Zpět</a>

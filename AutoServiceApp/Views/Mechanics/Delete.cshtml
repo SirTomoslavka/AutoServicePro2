@@ -1,0 +1,17 @@
+@model AutoServiceApp.Models.Mechanic
+
+<h1>Smazat mechanika</h1>
+
+<div asp-validation-summary="All" class="text-danger"></div>
+
+<p>Opravdu chceš smazat mechanika <strong>@Model.FullName</strong>?</p>
+
+<div class="mb-3">
+    <p><strong>Specializace:</strong> @Model.Specialization</p>
+</div>
+
+<form asp-action="Delete" method="post">
+    <input type="hidden" asp-for="Id" />
+    <button type="submit" class="btn btn-danger">Smazat</button>
+    <a asp-action="Index" class="btn btn-secondary">Zpět</a>
+</form>

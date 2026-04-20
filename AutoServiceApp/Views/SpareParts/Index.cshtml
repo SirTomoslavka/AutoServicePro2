@@ -1,0 +1,44 @@
+@model IEnumerable<AutoServiceApp.Models.SparePart>
+
+<h1>Náhradní díly</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">Nový díl</a>
+</p>
+
+<table class="table table-striped">
+    <thead>
+    <tr>
+        <th>Název</th>
+        <th>Katalogové číslo</th>
+        <th>Cena za kus</th>
+        <th>Skladem</th>
+        <th></th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>@item.Name</td>
+            <td>@item.CatalogNumber</td>
+            <td>@item.UnitPrice.ToString("N2") Kč</td>
+            <td>
+                @if (item.StockQuantity > 0)
+                {
+                    <span class="badge bg-success">@item.StockQuantity ks</span>
+                }
+                else
+                {
+                    <span class="badge bg-danger">Není skladem</span>
+                }
+            </td>
+            <td>
+                <a asp-action="Detail" asp-route-id="@item.Id">Detail</a> |
+                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                <a asp-action="Delete" asp-route-id="@item.Id">Smazat</a>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>

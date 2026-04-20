@@ -18,7 +18,55 @@ html {
 }
 
 body {
-  margin-bottom: 60px;
+  margin-bottom: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #f8f9fa;
+}
+
+.container.pb-4 {
+  flex: 1;
+}
+
+h1 {
+  margin-bottom: 1.2rem;
+  color: #333;
+  border-bottom: 2px solid #ffc107;
+  padding-bottom: 0.5rem;
+}
+
+.card {
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  border: none;
+  border-radius: 0.5rem;
+}
+
+.card-header {
+  background-color: #f8f9fa;
+  border-bottom: 2px solid #ffc107;
+  font-weight: 600;
+}
+
+.table {
+  margin-bottom: 0;
+}
+
+.table th {
+  background-color: #f1f3f5;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.badge {
+  font-size: 0.85em;
+}
+
+.navbar-brand {
+  font-size: 1.3rem;
+  letter-spacing: 0.05em;
 }
 
 .form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {

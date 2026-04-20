@@ -8,27 +8,38 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
 <body>
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4 shadow">
     <div class="container">
-        <a class="navbar-brand" asp-controller="Dashboard" asp-action="Index">Autoservis</a>
+        <a class="navbar-brand fw-bold" asp-controller="Dashboard" asp-action="Index">
+            <span class="text-warning">Auto</span>Servis
+        </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav">
+            <ul class="navbar-nav me-auto">
                 <li class="nav-item"><a class="nav-link" asp-controller="Dashboard" asp-action="Index">Dashboard</a></li>
                 <li class="nav-item"><a class="nav-link" asp-controller="Customers" asp-action="Index">Zákazníci</a></li>
                 <li class="nav-item"><a class="nav-link" asp-controller="Cars" asp-action="Index">Auta</a></li>
                 <li class="nav-item"><a class="nav-link" asp-controller="ServiceOrders" asp-action="Index">Zakázky</a></li>
                 <li class="nav-item"><a class="nav-link" asp-controller="Mechanics" asp-action="Index">Mechanici</a></li>
+                <li class="nav-item"><a class="nav-link" asp-controller="SpareParts" asp-action="Index">Díly</a></li>
+                <li class="nav-item"><a class="nav-link" asp-controller="Invoices" asp-action="Index">Faktury</a></li>
             </ul>
+            <partial name="_LoginPartial" />
         </div>
     </div>
 </nav>
 
-<div class="container">
+<div class="container pb-4">
     @RenderBody()
 </div>
+
+<footer class="bg-dark text-light py-3 mt-auto">
+    <div class="container text-center">
+        <small>&copy; @DateTime.Now.Year AutoServis - by Tomáš Bažant UHK FIM - PRO2</small>
+    </div>
+</footer>
 
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>

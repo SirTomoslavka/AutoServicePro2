@@ -22,6 +22,7 @@ public class ServiceOrder
 
     public List<ServiceTask> Tasks { get; set; } = new();
     public List<ServiceOrderMechanic> ServiceOrderMechanics { get; set; } = new();
+    public Invoice? Invoice { get; set; }
 
     [NotMapped]
     public decimal TotalPrice => Tasks.Sum(t => t.Price);

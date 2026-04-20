@@ -7,4 +7,5 @@ public class DashboardViewModel
     public int ServiceOrdersCount { get; set; }
     public int DoneOrdersCount { get; set; }
     public decimal TotalRevenue { get; set; }
+    public decimal PaidRevenue { get; set; }
 }

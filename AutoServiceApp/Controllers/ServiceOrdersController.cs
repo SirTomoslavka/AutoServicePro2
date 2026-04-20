@@ -1,215 +1,160 @@
-using AutoServiceApp.Data;
 using AutoServiceApp.Models;
+using AutoServiceApp.Services;
 using AutoServiceApp.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 
 namespace AutoServiceApp.Controllers;
 
+[Authorize]
 public class ServiceOrdersController : Controller
 {
-    private readonly AppDbContext _db;
+    private readonly IServiceOrderService _serviceOrders;
+    private readonly ICarService _cars;
+    private readonly IMechanicService _mechanics;
+    private readonly ISparePartService _spareParts;
 
-    public ServiceOrdersController(AppDbContext db)
+    public ServiceOrdersController(
+        IServiceOrderService serviceOrders,
+        ICarService cars,
+        IMechanicService mechanics,
+        ISparePartService spareParts)
     {
-        _db = db;
+        _serviceOrders = serviceOrders;
+        _cars = cars;
+        _mechanics = mechanics;
+        _spareParts = spareParts;
     }
 
     public async Task<IActionResult> Index(ServiceOrderStatus? status)
     {
-        var query = _db.ServiceOrders
-            .Include(x => x.Car)
-            .ThenInclude(x => x!.Customer)
-            .AsQueryable();
-
-        if (status.HasValue)
-        {
-            query = query.Where(x => x.Status == status.Value);
-        }
-
-        var serviceOrders = await query
-            .OrderByDescending(x => x.CreatedAt)
-            .ToListAsync();
-
         ViewBag.SelectedStatus = status;
-        return View(serviceOrders);
+        return View(await _serviceOrders.GetAllAsync(status));
     }
 
     public async Task<IActionResult> Detail(Guid id)
     {
-        var serviceOrder = await _db.ServiceOrders
-            .Include(x => x.Car)
-            .ThenInclude(x => x!.Customer)
-            .Include(x => x.Tasks)
-            .Include(x => x.ServiceOrderMechanics)
-            .ThenInclude(x => x.Mechanic)
-            .FirstOrDefaultAsync(x => x.Id == id);
-
+        var serviceOrder = await _serviceOrders.GetByIdAsync(id);
         if (serviceOrder == null) return NotFound();
 
+        ViewBag.SpareParts = await _spareParts.GetSelectListAsync();
         return View(serviceOrder);
     }
 
-    public async Task<IActionResult> Create()
-    {
-        return View(await BuildFormVm(new ServiceOrder()));
-    }
-    
+    public async Task<IActionResult> Create() =>
+        View(new ServiceOrderFormViewModel { ServiceOrder = new ServiceOrder(), Cars = await _cars.GetSelectListAsync() });
+
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(ServiceOrderFormViewModel vm)
     {
         if (!ModelState.IsValid)
         {
-            vm.Cars = await GetCarsSelectList();
+            vm.Cars = await _cars.GetSelectListAsync();
             return View(vm);
         }
-
-        _db.ServiceOrders.Add(vm.ServiceOrder);
-        await _db.SaveChangesAsync();
+        await _serviceOrders.CreateAsync(vm.ServiceOrder);
         return RedirectToAction(nameof(Index));
     }
 
     public async Task<IActionResult> Edit(Guid id)
     {
-        var serviceOrder = await _db.ServiceOrders.FindAsync(id);
+        var serviceOrder = await _serviceOrders.GetByIdForEditAsync(id);
         if (serviceOrder == null) return NotFound();
-
-        return View(await BuildFormVm(serviceOrder));
+        return View(new ServiceOrderFormViewModel { ServiceOrder = serviceOrder, Cars = await _cars.GetSelectListAsync() });
     }
-    
+
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(Guid id, ServiceOrderFormViewModel vm)
     {
         if (id != vm.ServiceOrder.Id) return BadRequest();
-
         if (!ModelState.IsValid)
         {
-            vm.Cars = await GetCarsSelectList();
+            vm.Cars = await _cars.GetSelectListAsync();
             return View(vm);
         }
-
-        _db.ServiceOrders.Update(vm.ServiceOrder);
-        await _db.SaveChangesAsync();
+        await _serviceOrders.UpdateAsync(vm.ServiceOrder);
         return RedirectToAction(nameof(Index));
     }
-    
+
     public async Task<IActionResult> Delete(Guid id)
     {
-        var serviceOrder = await _db.ServiceOrders
-            .Include(x => x.Car)
-            .FirstOrDefaultAsync(x => x.Id == id);
-
-        if (serviceOrder == null) return NotFound();
-
-        return View(serviceOrder);
+        var serviceOrder = await _serviceOrders.GetByIdForDeleteAsync(id);
+        return serviceOrder == null ? NotFound() : View(serviceOrder);
     }
 
     [HttpPost, ActionName("Delete")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(Guid id)
     {
-        var serviceOrder = await _db.ServiceOrders.FindAsync(id);
-        if (serviceOrder == null) return NotFound();
-
-        _db.ServiceOrders.Remove(serviceOrder);
-        await _db.SaveChangesAsync();
-        return RedirectToAction(nameof(Index));
+        var result = await _serviceOrders.DeleteAsync(id);
+        return result == null ? NotFound() : RedirectToAction(nameof(Index));
     }
-    
+
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> AddTask(Guid serviceOrderId, string name, decimal price)
     {
-        if (string.IsNullOrWhiteSpace(name))
-        {
-            return RedirectToAction(nameof(Detail), new { id = serviceOrderId });
-        }
-
-        var task = new ServiceTask
-        {
-            ServiceOrderId = serviceOrderId,
-            Name = name,
-            Price = price
-        };
-
-        _db.ServiceTasks.Add(task);
-        await _db.SaveChangesAsync();
+        if (!string.IsNullOrWhiteSpace(name))
+            await _serviceOrders.AddTaskAsync(serviceOrderId, name, price);
 
         return RedirectToAction(nameof(Detail), new { id = serviceOrderId });
     }
-    
+
     public async Task<IActionResult> AssignMechanics(Guid id)
     {
-        var serviceOrder = await _db.ServiceOrders
-            .Include(x => x.ServiceOrderMechanics)
-            .FirstOrDefaultAsync(x => x.Id == id);
-
+        var serviceOrder = await _serviceOrders.GetByIdWithMechanicsAsync(id);
         if (serviceOrder == null) return NotFound();
 
         var vm = new AssignMechanicsViewModel
         {
             ServiceOrderId = id,
             SelectedMechanicIds = serviceOrder.ServiceOrderMechanics.Select(x => x.MechanicId).ToList(),
-            Mechanics = await _db.Mechanics
-                .OrderBy(x => x.LastName)
-                .Select(x => new SelectListItem
-                {
-                    Value = x.Id.ToString(),
-                    Text = x.FirstName + " " + x.LastName + " - " + x.Specialization
-                })
-                .ToListAsync()
+            Mechanics = await _mechanics.GetSelectListAsync()
         };
 
         return View(vm);
     }
-    
+
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> AssignMechanics(AssignMechanicsViewModel vm)
     {
-        var serviceOrder = await _db.ServiceOrders
-            .Include(x => x.ServiceOrderMechanics)
-            .FirstOrDefaultAsync(x => x.Id == vm.ServiceOrderId);
-
-        if (serviceOrder == null) return NotFound();
-
-        _db.ServiceOrderMechanics.RemoveRange(serviceOrder.ServiceOrderMechanics);
-
-        var newLinks = vm.SelectedMechanicIds.Select(mechanicId => new ServiceOrderMechanic
-        {
-            ServiceOrderId = vm.ServiceOrderId,
-            MechanicId = mechanicId
-        });
-
-        await _db.ServiceOrderMechanics.AddRangeAsync(newLinks);
-        await _db.SaveChangesAsync();
-
-        return RedirectToAction(nameof(Detail), new { id = vm.ServiceOrderId });
-    }
-    
-    private async Task<ServiceOrderFormViewModel> BuildFormVm(ServiceOrder serviceOrder)
-    {
-        return new ServiceOrderFormViewModel
-        {
-            ServiceOrder = serviceOrder,
-            Cars = await GetCarsSelectList()
-        };
+        var result = await _serviceOrders.AssignMechanicsAsync(vm.ServiceOrderId, vm.SelectedMechanicIds);
+        return result == null ? NotFound() : RedirectToAction(nameof(Detail), new { id = vm.ServiceOrderId });
     }
 
-    private async Task<IEnumerable<SelectListItem>> GetCarsSelectList()
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ChangeStatus(Guid id, ServiceOrderStatus newStatus)
     {
-        return await _db.Cars
-            .Include(x => x.Customer)
-            .OrderBy(x => x.Brand)
-            .ThenBy(x => x.Model)
-            .Select(x => new SelectListItem
-            {
-                Value = x.Id.ToString(),
-                Text = x.Brand + " " + x.Model + " (" + x.LicensePlate + ") - " + x.Customer!.FirstName + " " + x.Customer.LastName
-            })
-            .ToListAsync();
+        var result = await _serviceOrders.ChangeStatusAsync(id, newStatus);
+        return result == null ? NotFound() : RedirectToAction(nameof(Detail), new { id });
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> GenerateInvoice(Guid serviceOrderId)
+    {
+        var invoice = await _serviceOrders.GenerateInvoiceAsync(serviceOrderId);
+        return invoice == null ? NotFound() : RedirectToAction("Detail", "Invoices", new { id = invoice.Id });
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> AddPartToTask(Guid serviceOrderId, Guid serviceTaskId, Guid sparePartId, int quantity)
+    {
+        if (quantity <= 0) quantity = 1;
+        var result = await _serviceOrders.AddPartToTaskAsync(serviceTaskId, sparePartId, quantity);
+        return result == null ? NotFound() : RedirectToAction(nameof(Detail), new { id = serviceOrderId });
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> RemovePartFromTask(Guid serviceOrderId, Guid serviceTaskPartId)
+    {
+        await _serviceOrders.RemovePartFromTaskAsync(serviceTaskPartId);
+        return RedirectToAction(nameof(Detail), new { id = serviceOrderId });
     }
 }

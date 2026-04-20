@@ -2,39 +2,65 @@
 
 <h1>Dashboard autoservisu</h1>
 
-<div class="row">
+<div class="row g-4 mb-4">
     <div class="col-md-3">
-        <div class="card mb-3">
+        <div class="card text-center">
             <div class="card-body">
-                <h5>Zákazníci</h5>
-                <p>@Model.CustomersCount</p>
+                <div class="display-4 fw-bold text-primary">@Model.CustomersCount</div>
+                <p class="text-muted mb-0">Zákazníci</p>
+            </div>
+            <div class="card-footer bg-transparent border-0">
+                <a asp-controller="Customers" asp-action="Index" class="btn btn-sm btn-outline-primary">Zobrazit</a>
             </div>
         </div>
     </div>
 
     <div class="col-md-3">
-        <div class="card mb-3">
+        <div class="card text-center">
             <div class="card-body">
-                <h5>Auta</h5>
-                <p>@Model.CarsCount</p>
+                <div class="display-4 fw-bold text-info">@Model.CarsCount</div>
+                <p class="text-muted mb-0">Auta</p>
+            </div>
+            <div class="card-footer bg-transparent border-0">
+                <a asp-controller="Cars" asp-action="Index" class="btn btn-sm btn-outline-info">Zobrazit</a>
             </div>
         </div>
     </div>
 
     <div class="col-md-3">
-        <div class="card mb-3">
+        <div class="card text-center">
             <div class="card-body">
-                <h5>Zakázky</h5>
-                <p>@Model.ServiceOrdersCount</p>
+                <div class="display-4 fw-bold text-warning">@Model.ServiceOrdersCount</div>
+                <p class="text-muted mb-0">Zakázky</p>
+                <small class="text-success">@Model.DoneOrdersCount dokončených</small>
+            </div>
+            <div class="card-footer bg-transparent border-0">
+                <a asp-controller="ServiceOrders" asp-action="Index" class="btn btn-sm btn-outline-warning">Zobrazit</a>
             </div>
         </div>
     </div>
 
     <div class="col-md-3">
-        <div class="card mb-3">
+        <div class="card text-center">
             <div class="card-body">
-                <h5>Tržba</h5>
-                <p>@Model.TotalRevenue Kč</p>
+                <div class="display-4 fw-bold text-muted">@Model.TotalRevenue.ToString("N0")</div>
+                <p class="text-muted mb-0">Tržba (vše)</p>
+                <small class="text-muted">(Zaplaceno + Nezaplaceno)</small>
+            </div>
+            <div class="card-footer bg-transparent border-0">
+                <a asp-controller="Invoices" asp-action="Index" class="btn btn-sm btn-outline-secondary">Faktury</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <div class="display-4 fw-bold text-success">@Model.PaidRevenue.ToString("N0")</div>
+                <p class="text-muted mb-0">Tržba (zaplaceno)</p>
+            </div>
+            <div class="card-footer bg-transparent border-0">
+                <a asp-controller="Invoices" asp-action="Index" class="btn btn-sm btn-outline-success">Faktury</a>
             </div>
         </div>
     </div>

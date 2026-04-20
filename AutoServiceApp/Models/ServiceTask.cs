@@ -17,4 +17,6 @@ public class ServiceTask
 
     public Guid ServiceOrderId { get; set; }
     public ServiceOrder? ServiceOrder { get; set; }
+
+    public List<ServiceTaskPart> ServiceTaskParts { get; set; } = new();
 }
