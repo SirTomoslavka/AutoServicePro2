@@ -1,4 +1,4 @@
-@model AutoServiceApp.Models.ServiceOrder
+@model AutoServiceApp.Dtos.ServiceOrderDto
 
 <h1>Detail zakázky</h1>
 
@@ -62,8 +62,8 @@
 <div class="card mb-4">
     <div class="card-header"><h4 class="mb-0">Auto a zákazník</h4></div>
     <div class="card-body">
-        <p><strong>Auto:</strong> @Model.Car?.Brand @Model.Car?.Model (@Model.Car?.LicensePlate)</p>
-        <p><strong>Zákazník:</strong> @Model.Car?.Customer?.FullName</p>
+        <p><strong>Auto:</strong> @Model.CarBrand @Model.CarModel (@Model.CarLicensePlate)</p>
+        <p><strong>Zákazník:</strong> @Model.CustomerName</p>
     </div>
 </div>
 
@@ -78,7 +78,7 @@
                     <span class="text-muted">@task.Price.ToString("N2") Kč (práce)</span>
                 </div>
 
-                @if (task.ServiceTaskParts.Any())
+                @if (task.Parts.Any())
                 {
                     <table class="table table-sm table-bordered mb-2">
                         <thead>
@@ -91,10 +91,10 @@
                         </tr>
                         </thead>
                         <tbody>
-                        @foreach (var stp in task.ServiceTaskParts)
+                        @foreach (var stp in task.Parts)
                         {
                             <tr>
-                                <td>@stp.SparePart?.Name</td>
+                                <td>@stp.SparePartName</td>
                                 <td>@stp.Quantity</td>
                                 <td>@stp.UnitPrice.ToString("N2") Kč</td>
                                 <td>@stp.TotalPrice.ToString("N2") Kč</td>
@@ -155,12 +155,12 @@
 <div class="card mb-4">
     <div class="card-header"><h4 class="mb-0">Mechanici</h4></div>
     <div class="card-body">
-        @if (Model.ServiceOrderMechanics.Any())
+        @if (Model.Mechanics.Any())
         {
             <ul class="list-group mb-3">
-                @foreach (var item in Model.ServiceOrderMechanics)
+                @foreach (var item in Model.Mechanics)
                 {
-                    <li class="list-group-item">@item.Mechanic?.FullName <span class="text-muted">(@item.Mechanic?.Specialization)</span></li>
+                    <li class="list-group-item">@item.FullName <span class="text-muted">(@item.Specialization)</span></li>
                 }
             </ul>
         }

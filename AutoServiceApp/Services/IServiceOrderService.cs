@@ -1,11 +1,12 @@
+using AutoServiceApp.Dtos;
 using AutoServiceApp.Models;
 
 namespace AutoServiceApp.Services;
 
 public interface IServiceOrderService
 {
-    Task<IList<ServiceOrder>> GetAllAsync(ServiceOrderStatus? status = null);
-    Task<ServiceOrder?> GetByIdAsync(Guid id);
+    Task<IList<ServiceOrderDto>> GetAllAsync(ServiceOrderStatus? status = null);
+    Task<ServiceOrderDto?> GetByIdAsync(Guid id);
     Task<ServiceOrder?> GetByIdForEditAsync(Guid id);
     Task<ServiceOrder?> GetByIdForDeleteAsync(Guid id);
     Task<ServiceOrder?> GetByIdWithMechanicsAsync(Guid id);

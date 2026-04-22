@@ -44,7 +44,7 @@ public class CarsController : Controller
 
     public async Task<IActionResult> Edit(Guid id)
     {
-        var car = await _cars.GetByIdAsync(id);
+        var car = await _cars.GetByIdForEditAsync(id);
         if (car == null) return NotFound();
         return View(new CarFormViewModel { Car = car, Customers = await _customers.GetSelectListAsync() });
     }
@@ -65,7 +65,7 @@ public class CarsController : Controller
 
     public async Task<IActionResult> Delete(Guid id)
     {
-        var car = await _cars.GetByIdAsync(id);
+        var car = await _cars.GetByIdForEditAsync(id);
         return car == null ? NotFound() : View(car);
     }
 
@@ -77,7 +77,7 @@ public class CarsController : Controller
         if (result == null) return NotFound();
         if (!result.Value)
         {
-            var car = await _cars.GetByIdAsync(id);
+            var car = await _cars.GetByIdForEditAsync(id);
             ModelState.AddModelError(string.Empty, "Auto nelze smazat, protože má servisní zakázky.");
             return View(car);
         }

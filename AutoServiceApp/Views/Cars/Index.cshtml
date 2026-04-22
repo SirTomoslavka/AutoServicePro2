@@ -1,4 +1,4 @@
-@model IEnumerable<AutoServiceApp.Models.Car>
+@model IList<AutoServiceApp.Dtos.CarDto>
 
 <h1>Auta</h1>
 
@@ -25,7 +25,7 @@
             <td>@item.Model</td>
             <td>@item.Year</td>
             <td>@item.LicensePlate</td>
-            <td>@item.Customer?.FullName</td>
+            <td>@item.CustomerName</td>
             <td>
                 <a asp-action="Detail" asp-route-id="@item.Id">Detail</a> |
                 <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |

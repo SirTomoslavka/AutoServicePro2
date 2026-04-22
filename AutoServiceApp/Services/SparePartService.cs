@@ -1,4 +1,5 @@
 using AutoServiceApp.Data;
+using AutoServiceApp.Dtos;
 using AutoServiceApp.Models;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -11,14 +12,46 @@ public class SparePartService : ISparePartService
 
     public SparePartService(AppDbContext db) => _db = db;
 
-    public async Task<IList<SparePart>> GetAllAsync() =>
-        await _db.SpareParts.OrderBy(x => x.Name).ToListAsync();
-
-    public async Task<SparePart?> GetByIdAsync(Guid id) =>
+    public async Task<IList<SparePartDto>> GetAllAsync() =>
         await _db.SpareParts
-            .Include(x => x.ServiceTaskParts)
-                .ThenInclude(x => x.ServiceTask)
-            .FirstOrDefaultAsync(x => x.Id == id);
+            .OrderBy(x => x.Name)
+            .Select(x => new SparePartDto
+            {
+                Id = x.Id,
+                Name = x.Name,
+                CatalogNumber = x.CatalogNumber,
+                UnitPrice = x.UnitPrice,
+                StockQuantity = x.StockQuantity
+            })
+            .ToListAsync();
+
+    public async Task<SparePartDto?> GetByIdAsync(Guid id)
+    {
+        var x = await _db.SpareParts
+            .Include(p => p.ServiceTaskParts)
+                .ThenInclude(stp => stp.ServiceTask)
+            .FirstOrDefaultAsync(p => p.Id == id);
+
+        if (x == null) return null;
+
+        return new SparePartDto
+        {
+            Id = x.Id,
+            Name = x.Name,
+            CatalogNumber = x.CatalogNumber,
+            UnitPrice = x.UnitPrice,
+            StockQuantity = x.StockQuantity,
+            Usages = x.ServiceTaskParts.Select(stp => new SparePartUsageDto
+            {
+                ServiceTaskName = stp.ServiceTask?.Name,
+                Quantity = stp.Quantity,
+                UnitPrice = stp.UnitPrice
+            }).ToList()
+        };
+    }
+
+    public async Task<SparePart?> GetByIdForEditAsync(Guid id) =>
+        await _db.SpareParts.FindAsync(id);
 
     public async Task<IList<SelectListItem>> GetSelectListAsync() =>
         await _db.SpareParts

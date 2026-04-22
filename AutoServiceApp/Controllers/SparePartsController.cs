@@ -33,7 +33,7 @@ public class SparePartsController : Controller
 
     public async Task<IActionResult> Edit(Guid id)
     {
-        var part = await _spareParts.GetByIdAsync(id);
+        var part = await _spareParts.GetByIdForEditAsync(id);
         return part == null ? NotFound() : View(part);
     }
 
@@ -49,7 +49,7 @@ public class SparePartsController : Controller
 
     public async Task<IActionResult> Delete(Guid id)
     {
-        var part = await _spareParts.GetByIdAsync(id);
+        var part = await _spareParts.GetByIdForEditAsync(id);
         return part == null ? NotFound() : View(part);
     }
 

@@ -1,5 +1,6 @@
 using AutoServiceApp.Controllers;
 using AutoServiceApp.Data;
+using AutoServiceApp.Dtos;
 using AutoServiceApp.Models;
 using AutoServiceApp.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -34,7 +35,7 @@ public class SparePartsControllerTests : IDisposable
         var result = await _controller.Index();
 
         var viewResult = Assert.IsType<ViewResult>(result);
-        var model = Assert.IsAssignableFrom<IEnumerable<SparePart>>(viewResult.Model);
+        var model = Assert.IsAssignableFrom<IList<SparePartDto>>(viewResult.Model);
         Assert.Single(model);
     }
 

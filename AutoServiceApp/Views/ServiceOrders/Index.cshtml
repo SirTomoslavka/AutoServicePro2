@@ -1,4 +1,4 @@
-@model IEnumerable<AutoServiceApp.Models.ServiceOrder>
+@model IList<AutoServiceApp.Dtos.ServiceOrderDto>
 
 <h1>Zakázky</h1>
 
@@ -32,7 +32,7 @@
             <td>
                 @switch (item.Status)
                 {
-                    case AutoServiceApp.Models.ServiceOrderStatus.New:
+                case AutoServiceApp.Models.ServiceOrderStatus.New:
                         <span class="badge bg-info">Nová</span>
                         break;
                     case AutoServiceApp.Models.ServiceOrderStatus.InProgress:
@@ -47,8 +47,8 @@
                 }
             </td>
             <td>@(item.Description.Length > 60 ? item.Description[..60] + "..." : item.Description)</td>
-            <td>@item.Car?.Brand @item.Car?.Model</td>
-            <td>@item.Car?.Customer?.FullName</td>
+            <td>@item.CarBrand @item.CarModel</td>
+            <td>@item.CustomerName</td>
             <td>
                 <a asp-action="Detail" asp-route-id="@item.Id">Detail</a> |
                 <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |

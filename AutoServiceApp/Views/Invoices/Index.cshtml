@@ -1,4 +1,4 @@
-@model IEnumerable<AutoServiceApp.Models.Invoice>
+@model IList<AutoServiceApp.Dtos.InvoiceDto>
 
 <h1>Faktury</h1>
 
@@ -30,7 +30,7 @@
                     <span class="badge bg-danger">Nezaplaceno</span>
                 }
             </td>
-            <td>@item.ServiceOrder?.Car?.Customer?.FullName</td>
+            <td>@item.CustomerName</td>
             <td>
                 <a asp-action="Detail" asp-route-id="@item.Id">Detail</a> |
                 <a asp-action="Delete" asp-route-id="@item.Id">Smazat</a>

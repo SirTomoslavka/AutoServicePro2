@@ -25,5 +25,5 @@ public class ServiceOrder
     public Invoice? Invoice { get; set; }
 
     [NotMapped]
-    public decimal TotalPrice => Tasks.Sum(t => t.Price);
+    public decimal TotalPrice => Tasks.Sum(t => t.Price + t.ServiceTaskParts.Sum(p => p.Quantity * p.UnitPrice));
 }

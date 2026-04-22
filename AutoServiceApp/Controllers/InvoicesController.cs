@@ -8,8 +8,13 @@ namespace AutoServiceApp.Controllers;
 public class InvoicesController : Controller
 {
     private readonly IInvoiceService _invoices;
+    private readonly IInvoicePdfService _pdf;
 
-    public InvoicesController(IInvoiceService invoices) => _invoices = invoices;
+    public InvoicesController(IInvoiceService invoices, IInvoicePdfService pdf)
+    {
+        _invoices = invoices;
+        _pdf = pdf;
+    }
 
     public async Task<IActionResult> Index() => View(await _invoices.GetAllAsync());
 
@@ -17,6 +22,15 @@ public class InvoicesController : Controller
     {
         var invoice = await _invoices.GetByIdAsync(id);
         return invoice == null ? NotFound() : View(invoice);
+    }
+
+    public async Task<IActionResult> Pdf(Guid id)
+    {
+        var invoice = await _invoices.GetByIdAsync(id);
+        if (invoice == null) return NotFound();
+
+        var pdfBytes = await _pdf.GeneratePdfAsync(invoice);
+        return File(pdfBytes, "application/pdf");
     }
 
     [HttpPost]

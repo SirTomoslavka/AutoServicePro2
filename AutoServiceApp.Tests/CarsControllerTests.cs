@@ -1,5 +1,6 @@
 using AutoServiceApp.Controllers;
 using AutoServiceApp.Data;
+using AutoServiceApp.Dtos;
 using AutoServiceApp.Models;
 using AutoServiceApp.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -37,7 +38,7 @@ public class CarsControllerTests : IDisposable
         var result = await _controller.Index();
 
         var viewResult = Assert.IsType<ViewResult>(result);
-        var model = Assert.IsAssignableFrom<IEnumerable<Car>>(viewResult.Model);
+        var model = Assert.IsAssignableFrom<IList<CarDto>>(viewResult.Model);
         Assert.Single(model);
     }
 
@@ -52,9 +53,9 @@ public class CarsControllerTests : IDisposable
         var result = await _controller.Detail(car.Id);
 
         var viewResult = Assert.IsType<ViewResult>(result);
-        var model = Assert.IsType<Car>(viewResult.Model);
+        var model = Assert.IsType<CarDto>(viewResult.Model);
         Assert.Equal("Škoda", model.Brand);
-        Assert.NotNull(model.Customer);
+        Assert.NotNull(model.CustomerName);
     }
 
     [Fact]

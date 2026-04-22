@@ -1,5 +1,6 @@
 using AutoServiceApp.Controllers;
 using AutoServiceApp.Data;
+using AutoServiceApp.Dtos;
 using AutoServiceApp.Models;
 using AutoServiceApp.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -40,8 +41,8 @@ public class ServiceOrdersControllerTests : IDisposable
         var result = await _controller.Index(null);
 
         var viewResult = Assert.IsType<ViewResult>(result);
-        var model = Assert.IsAssignableFrom<IEnumerable<ServiceOrder>>(viewResult.Model);
-        Assert.Equal(2, model.Count());
+        var model = Assert.IsAssignableFrom<IList<ServiceOrderDto>>(viewResult.Model);
+        Assert.Equal(2, model.Count);
     }
 
     [Fact]
@@ -56,7 +57,7 @@ public class ServiceOrdersControllerTests : IDisposable
         var result = await _controller.Index(ServiceOrderStatus.Done);
 
         var viewResult = Assert.IsType<ViewResult>(result);
-        var model = Assert.IsAssignableFrom<IEnumerable<ServiceOrder>>(viewResult.Model);
+        var model = Assert.IsAssignableFrom<IList<ServiceOrderDto>>(viewResult.Model);
         Assert.Single(model);
     }
 
@@ -111,7 +112,7 @@ public class ServiceOrdersControllerTests : IDisposable
         var result = await _controller.Detail(order.Id);
 
         var viewResult = Assert.IsType<ViewResult>(result);
-        Assert.IsType<ServiceOrder>(viewResult.Model);
+        Assert.IsType<ServiceOrderDto>(viewResult.Model);
     }
 
     [Fact]
@@ -144,4 +145,117 @@ public class ServiceOrdersControllerTests : IDisposable
         Assert.IsType<RedirectToActionResult>(result);
         Assert.Empty(_db.ServiceOrders);
     }
+
+    [Fact]
+    public async Task AddPartToTask_AddsPartToTask()
+    {
+        var sparePart = new SparePart { Name = "Olejový filtr", UnitPrice = 250, StockQuantity = 10 };
+        var customer = new Customer { FirstName = "Jan", LastName = "Novák" };
+        var car = new Car { Brand = "Škoda", Model = "Octavia", LicensePlate = "1AB1234", Customer = customer };
+        var task = new ServiceTask { Name = "Výměna oleje", Price = 400 };
+        var order = new ServiceOrder { Car = car, Description = "Test", Tasks = new List<ServiceTask> { task } };
+        _db.SpareParts.Add(sparePart);
+        _db.ServiceOrders.Add(order);
+        await _db.SaveChangesAsync();
+
+        var result = await _controller.AddPartToTask(order.Id, task.Id, sparePart.Id, 2);
+
+        Assert.IsType<RedirectToActionResult>(result);
+        var stp = _db.ServiceTaskParts.Single();
+        Assert.Equal(250m, stp.UnitPrice);
+        Assert.Equal(2, stp.Quantity);
+    }
+
+    [Fact]
+    public async Task AddPartToTask_InvalidSparePart_ReturnsNotFound()
+    {
+        var task = new ServiceTask { Name = "Test", Price = 100 };
+        _db.ServiceTasks.Add(task);
+        await _db.SaveChangesAsync();
+
+        var result = await _controller.AddPartToTask(Guid.NewGuid(), task.Id, Guid.NewGuid(), 1);
+
+        Assert.IsType<NotFoundResult>(result);
+        Assert.Empty(_db.ServiceTaskParts);
+    }
+
+    [Fact]
+    public async Task RemovePartFromTask_RemovesPart()
+    {
+        var sparePart = new SparePart { Name = "Brzdové destičky", UnitPrice = 500, StockQuantity = 5 };
+        var task = new ServiceTask { Name = "Výměna brzd", Price = 800 };
+        var stp = new ServiceTaskPart { ServiceTask = task, SparePart = sparePart, Quantity = 1, UnitPrice = 500 };
+        _db.ServiceTaskParts.Add(stp);
+        await _db.SaveChangesAsync();
+
+        var customer = new Customer { FirstName = "Jan", LastName = "Novák" };
+        var car = new Car { Brand = "Škoda", Model = "Octavia", LicensePlate = "1AB1234", Customer = customer };
+        var order = new ServiceOrder { Car = car, Description = "Test" };
+        _db.ServiceOrders.Add(order);
+        await _db.SaveChangesAsync();
+
+        var result = await _controller.RemovePartFromTask(order.Id, stp.Id);
+
+        Assert.IsType<RedirectToActionResult>(result);
+        Assert.Empty(_db.ServiceTaskParts);
+    }
+
+    [Fact]
+    public async Task GenerateInvoice_CreatesInvoiceWithPartsInTotal()
+    {
+        // This test would have caught the original bug where parts were not
+        // included in ServiceTaskParts when computing TotalAmount.
+        var sparePart = new SparePart { Name = "Vstřikovač", UnitPrice = 800, StockQuantity = 10 };
+        var customer = new Customer { FirstName = "Jan", LastName = "Novák" };
+        var car = new Car { Brand = "BMW", Model = "320d", LicensePlate = "5EF4567", Customer = customer };
+        var task = new ServiceTask
+        {
+            Name = "Výměna vstřikovačů",
+            Price = 1200,
+            ServiceTaskParts = new List<ServiceTaskPart>
+            {
+                new() { SparePart = sparePart, Quantity = 4, UnitPrice = 800 }  // 3 200
+            }
+        };
+        var order = new ServiceOrder { Car = car, Description = "Test", Tasks = new List<ServiceTask> { task } };
+        _db.ServiceOrders.Add(order);
+        await _db.SaveChangesAsync();
+
+        var result = await _controller.GenerateInvoice(order.Id);
+
+        Assert.IsType<RedirectToActionResult>(result);
+        var invoice = _db.Invoices.Single();
+        // 1 200 (labour) + 4×800 (parts) = 4 400
+        Assert.Equal(4400m, invoice.TotalAmount);
+    }
+
+    [Fact]
+    public async Task Detail_IncludesTasksAndPartsInDto()
+    {
+        var sparePart = new SparePart { Name = "Olejový filtr", UnitPrice = 250, StockQuantity = 10 };
+        var customer = new Customer { FirstName = "Jan", LastName = "Novák" };
+        var car = new Car { Brand = "Škoda", Model = "Octavia", LicensePlate = "1AB1234", Customer = customer };
+        var task = new ServiceTask
+        {
+            Name = "Výměna oleje",
+            Price = 400,
+            ServiceTaskParts = new List<ServiceTaskPart>
+            {
+                new() { SparePart = sparePart, Quantity = 1, UnitPrice = 250 }
+            }
+        };
+        var order = new ServiceOrder { Car = car, Description = "Test", Tasks = new List<ServiceTask> { task } };
+        _db.ServiceOrders.Add(order);
+        await _db.SaveChangesAsync();
+
+        var result = await _controller.Detail(order.Id);
+
+        var viewResult = Assert.IsType<ViewResult>(result);
+        var dto = Assert.IsType<ServiceOrderDto>(viewResult.Model);
+        Assert.Single(dto.Tasks);
+        Assert.Single(dto.Tasks[0].Parts);
+        Assert.Equal("Olejový filtr", dto.Tasks[0].Parts[0].SparePartName);
+        Assert.Equal(650m, dto.TotalPrice); // 400 + 250
+    }
 }
+

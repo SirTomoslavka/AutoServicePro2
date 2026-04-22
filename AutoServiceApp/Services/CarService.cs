@@ -1,4 +1,5 @@
 using AutoServiceApp.Data;
+using AutoServiceApp.Dtos;
 using AutoServiceApp.Models;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -11,17 +12,54 @@ public class CarService : ICarService
 
     public CarService(AppDbContext db) => _db = db;
 
-    public async Task<IList<Car>> GetAllAsync() =>
+    public async Task<IList<CarDto>> GetAllAsync() =>
         await _db.Cars
             .Include(x => x.Customer)
             .OrderBy(x => x.Brand)
             .ThenBy(x => x.Model)
+            .Select(x => new CarDto
+            {
+                Id = x.Id,
+                Brand = x.Brand,
+                Model = x.Model,
+                Year = x.Year,
+                LicensePlate = x.LicensePlate,
+                CustomerId = x.CustomerId,
+                CustomerName = x.Customer != null ? x.Customer.FirstName + " " + x.Customer.LastName : null
+            })
             .ToListAsync();
 
-    public async Task<Car?> GetByIdAsync(Guid id) =>
-        await _db.Cars
+    public async Task<CarDto?> GetByIdAsync(Guid id)
+    {
+        var x = await _db.Cars
             .Include(x => x.Customer)
             .Include(x => x.ServiceOrders)
+            .FirstOrDefaultAsync(x => x.Id == id);
+
+        if (x == null) return null;
+
+        return new CarDto
+        {
+            Id = x.Id,
+            Brand = x.Brand,
+            Model = x.Model,
+            Year = x.Year,
+            LicensePlate = x.LicensePlate,
+            CustomerId = x.CustomerId,
+            CustomerName = x.Customer?.FirstName + " " + x.Customer?.LastName,
+            ServiceOrders = x.ServiceOrders.Select(o => new ServiceOrderSummaryDto
+            {
+                Id = o.Id,
+                CreatedAt = o.CreatedAt,
+                Status = o.Status,
+                Description = o.Description
+            }).ToList()
+        };
+    }
+
+    public async Task<Car?> GetByIdForEditAsync(Guid id) =>
+        await _db.Cars
+            .Include(x => x.Customer)
             .FirstOrDefaultAsync(x => x.Id == id);
 
     public async Task<IList<SelectListItem>> GetSelectListAsync() =>

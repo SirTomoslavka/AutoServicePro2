@@ -1,4 +1,4 @@
-@model AutoServiceApp.Models.Invoice
+@model AutoServiceApp.Dtos.InvoiceDto
 
 <h1>Faktura @Model.InvoiceNumber</h1>
 
@@ -25,8 +25,8 @@
                 }
             </div>
             <div class="col-md-6">
-                <p><strong>Zákazník:</strong> @Model.ServiceOrder?.Car?.Customer?.FullName</p>
-                <p><strong>Auto:</strong> @Model.ServiceOrder?.Car?.Brand @Model.ServiceOrder?.Car?.Model (@Model.ServiceOrder?.Car?.LicensePlate)</p>
+                <p><strong>Zákazník:</strong> @Model.CustomerName</p>
+                <p><strong>Auto:</strong> @Model.CarDisplay</p>
             </div>
         </div>
         @if (!string.IsNullOrEmpty(Model.Note))
@@ -47,14 +47,21 @@
             </tr>
             </thead>
             <tbody>
-            @if (Model.ServiceOrder?.Tasks != null)
+            @if (Model.Tasks != null)
             {
-                @foreach (var task in Model.ServiceOrder.Tasks)
+                @foreach (var task in Model.Tasks)
                 {
                     <tr>
                         <td>@task.Name</td>
                         <td class="text-end">@task.Price.ToString("N2") Kč</td>
                     </tr>
+                    @foreach (var part in task.Parts)
+                    {
+                        <tr class="text-muted small">
+                            <td class="ps-4">↳ @part.SparePartName × @part.Quantity</td>
+                            <td class="text-end">@part.TotalPrice.ToString("N2") Kč</td>
+                        </tr>
+                    }
                 }
             }
             </tbody>
@@ -76,6 +83,7 @@
             <button type="submit" class="btn btn-success">Označit jako zaplaceno</button>
         </form>
     }
+    <a asp-action="Pdf" asp-route-id="@Model.Id" class="btn btn-outline-danger" target="_blank">PDF</a>
     <a asp-controller="ServiceOrders" asp-action="Detail" asp-route-id="@Model.ServiceOrderId" class="btn btn-outline-primary">Zobrazit zakázku</a>
     <a asp-action="Index" class="btn btn-secondary">Zpět na faktury</a>
 </div>

@@ -1,4 +1,4 @@
-@model AutoServiceApp.Models.Mechanic
+@model AutoServiceApp.Dtos.MechanicDto
 
 <h1>Detail mechanika</h1>
 
@@ -11,7 +11,7 @@
 
 <h4>Servisní zakázky</h4>
 
-@if (Model.ServiceOrderMechanics != null && Model.ServiceOrderMechanics.Any())
+@if (Model.Orders != null && Model.Orders.Any())
 {
     <table class="table table-striped">
         <thead>
@@ -24,19 +24,17 @@
         </tr>
         </thead>
         <tbody>
-        @foreach (var link in Model.ServiceOrderMechanics)
+        @foreach (var order in Model.Orders)
         {
-            var order = link.ServiceOrder;
-
             <tr>
-                <td>@order?.CreatedAt.ToLocalTime()</td>
-                <td>@order?.Status</td>
-                <td>@order?.Car?.Brand @order?.Car?.Model (@order?.Car?.LicensePlate)</td>
-                <td>@order?.Car?.Customer?.FullName</td>
+                <td>@order.CreatedAt.ToLocalTime()</td>
+                <td>@order.Status</td>
+                <td>@order.CarDisplay</td>
+                <td>@order.CustomerName</td>
                 <td>
                     <a asp-controller="ServiceOrders"
                        asp-action="Detail"
-                       asp-route-id="@order?.Id">
+                       asp-route-id="@order.Id">
                         Detail
                     </a>
                 </td>

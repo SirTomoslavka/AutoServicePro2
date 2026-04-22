@@ -1,4 +1,4 @@
-@model IEnumerable<AutoServiceApp.Models.Mechanic>
+@model IList<AutoServiceApp.Dtos.MechanicDto>
 
 <h1>Mechanici</h1>
 
@@ -19,7 +19,7 @@
         <tr>
             <td>@m.FullName</td>
             <td>@m.Specialization</td>
-            <td>@m.ServiceOrderMechanics.Count</td>
+            <td>@m.OrderCount</td>
             <td>
                 <a asp-action="Detail" asp-route-id="@m.Id">Detail</a> |
                 <a asp-action="Edit" asp-route-id="@m.Id">Edit</a> |

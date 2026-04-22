@@ -42,6 +42,61 @@ public class ModelTests
     }
 
     [Fact]
+    public void ServiceOrder_TotalPrice_IncludesPartsCost()
+    {
+        var order = new ServiceOrder
+        {
+            Description = "Test",
+            Tasks = new List<ServiceTask>
+            {
+                new()
+                {
+                    Name = "Výměna oleje",
+                    Price = 500,
+                    ServiceTaskParts = new List<ServiceTaskPart>
+                    {
+                        new() { Quantity = 5, UnitPrice = 200 }   // 1 000 Kč v dílech
+                    }
+                }
+            }
+        };
+
+        Assert.Equal(1500m, order.TotalPrice); // 500 práce + 1 000 díly
+    }
+
+    [Fact]
+    public void ServiceOrder_TotalPrice_MultipleTasksWithParts()
+    {
+        var order = new ServiceOrder
+        {
+            Description = "Test",
+            Tasks = new List<ServiceTask>
+            {
+                new()
+                {
+                    Name = "Task1", Price = 300,
+                    ServiceTaskParts = new List<ServiceTaskPart>
+                    {
+                        new() { Quantity = 2, UnitPrice = 100 }   // 200
+                    }
+                },
+                new()
+                {
+                    Name = "Task2", Price = 700,
+                    ServiceTaskParts = new List<ServiceTaskPart>
+                    {
+                        new() { Quantity = 3, UnitPrice = 50 },   // 150
+                        new() { Quantity = 1, UnitPrice = 800 }   // 800
+                    }
+                }
+            }
+        };
+
+        // 300+200 + 700+150+800 = 2 150
+        Assert.Equal(2150m, order.TotalPrice);
+    }
+
+    [Fact]
     public void ServiceOrder_TotalPrice_NoTasks_ReturnsZero()
     {
         var order = new ServiceOrder { Description = "Test" };

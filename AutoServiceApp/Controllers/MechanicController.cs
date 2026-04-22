@@ -33,7 +33,7 @@ public class MechanicsController : Controller
 
     public async Task<IActionResult> Edit(Guid id)
     {
-        var mechanic = await _mechanics.GetByIdAsync(id);
+        var mechanic = await _mechanics.GetByIdForEditAsync(id);
         return mechanic == null ? NotFound() : View(mechanic);
     }
 
@@ -49,7 +49,7 @@ public class MechanicsController : Controller
 
     public async Task<IActionResult> Delete(Guid id)
     {
-        var mechanic = await _mechanics.GetByIdAsync(id);
+        var mechanic = await _mechanics.GetByIdForEditAsync(id);
         return mechanic == null ? NotFound() : View(mechanic);
     }
 

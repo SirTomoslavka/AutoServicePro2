@@ -1,3 +1,4 @@
+using AutoServiceApp.Dtos;
 using AutoServiceApp.Models;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
@@ -5,8 +6,9 @@ namespace AutoServiceApp.Services;
 
 public interface ICarService
 {
-    Task<IList<Car>> GetAllAsync();
-    Task<Car?> GetByIdAsync(Guid id);
+    Task<IList<CarDto>> GetAllAsync();
+    Task<CarDto?> GetByIdAsync(Guid id);
+    Task<Car?> GetByIdForEditAsync(Guid id);
     Task<IList<SelectListItem>> GetSelectListAsync();
     Task CreateAsync(Car car);
     Task UpdateAsync(Car car);

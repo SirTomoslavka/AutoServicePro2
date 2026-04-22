@@ -1,4 +1,4 @@
-@model AutoServiceApp.Models.Car
+@model AutoServiceApp.Dtos.CarDto
 
 <h1>Detail auta</h1>
 
@@ -7,7 +7,7 @@
     <p><strong>Model:</strong> @Model.Model</p>
     <p><strong>Rok:</strong> @Model.Year</p>
     <p><strong>SPZ:</strong> @Model.LicensePlate</p>
-    <p><strong>Majitel:</strong> @Model.Customer?.FullName</p>
+    <p><strong>Majitel:</strong> @Model.CustomerName</p>
 </div>
 
 <h4>Servisní zakázky</h4>

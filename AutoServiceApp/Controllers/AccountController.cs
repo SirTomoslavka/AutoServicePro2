@@ -1,8 +1,5 @@
-using AutoServiceApp.Data;
-using AutoServiceApp.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace AutoServiceApp.Controllers;
 

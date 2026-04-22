@@ -1,4 +1,4 @@
-@model AutoServiceApp.Models.SparePart
+@model AutoServiceApp.Dtos.SparePartDto
 
 <h1>Detail dílu</h1>
 
@@ -11,7 +11,7 @@
     </div>
 </div>
 
-@if (Model.ServiceTaskParts.Any())
+@if (Model.Usages.Any())
 {
     <div class="card mb-4">
         <div class="card-header"><h5 class="mb-0">Použití v úkonech</h5></div>
@@ -25,12 +25,12 @@
                 </tr>
                 </thead>
                 <tbody>
-                @foreach (var stp in Model.ServiceTaskParts)
+                @foreach (var usage in Model.Usages)
                 {
                     <tr>
-                        <td>@stp.ServiceTask?.Name</td>
-                        <td>@stp.Quantity</td>
-                        <td>@stp.UnitPrice.ToString("N2") Kč</td>
+                        <td>@usage.ServiceTaskName</td>
+                        <td>@usage.Quantity</td>
+                        <td>@usage.UnitPrice.ToString("N2") Kč</td>
                     </tr>
                 }
                 </tbody>

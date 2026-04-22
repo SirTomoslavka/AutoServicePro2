@@ -1,4 +1,5 @@
 using AutoServiceApp.Data;
+using AutoServiceApp.Dtos;
 using AutoServiceApp.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,7 +11,7 @@ public class ServiceOrderService : IServiceOrderService
 
     public ServiceOrderService(AppDbContext db) => _db = db;
 
-    public async Task<IList<ServiceOrder>> GetAllAsync(ServiceOrderStatus? status = null)
+    public async Task<IList<ServiceOrderDto>> GetAllAsync(ServiceOrderStatus? status = null)
     {
         var query = _db.ServiceOrders
             .Include(x => x.Car)
@@ -20,18 +21,82 @@ public class ServiceOrderService : IServiceOrderService
         if (status.HasValue)
             query = query.Where(x => x.Status == status.Value);
 
-        return await query.OrderByDescending(x => x.CreatedAt).ToListAsync();
+        var orders = await query.OrderByDescending(x => x.CreatedAt).ToListAsync();
+
+        return orders.Select(x => new ServiceOrderDto
+        {
+            Id = x.Id,
+            CreatedAt = x.CreatedAt,
+            Status = x.Status,
+            Description = x.Description,
+            CarId = x.CarId,
+            CarBrand = x.Car?.Brand,
+            CarModel = x.Car?.Model,
+            CarLicensePlate = x.Car?.LicensePlate,
+            CustomerName = x.Car?.Customer != null
+                ? $"{x.Car.Customer.FirstName} {x.Car.Customer.LastName}"
+                : null
+        }).ToList();
     }
 
-    public async Task<ServiceOrder?> GetByIdAsync(Guid id) =>
-        await _db.ServiceOrders
-            .Include(x => x.Car).ThenInclude(x => x!.Customer)
-            .Include(x => x.Tasks)
-                .ThenInclude(x => x.ServiceTaskParts)
-                    .ThenInclude(x => x.SparePart)
-            .Include(x => x.ServiceOrderMechanics).ThenInclude(x => x.Mechanic)
-            .Include(x => x.Invoice)
-            .FirstOrDefaultAsync(x => x.Id == id);
+    public async Task<ServiceOrderDto?> GetByIdAsync(Guid id)
+    {
+        var x = await _db.ServiceOrders
+            .Include(o => o.Car).ThenInclude(c => c!.Customer)
+            .Include(o => o.Tasks)
+                .ThenInclude(t => t.ServiceTaskParts)
+                    .ThenInclude(stp => stp.SparePart)
+            .Include(o => o.ServiceOrderMechanics).ThenInclude(m => m.Mechanic)
+            .Include(o => o.Invoice)
+            .FirstOrDefaultAsync(o => o.Id == id);
+
+        if (x == null) return null;
+
+        return new ServiceOrderDto
+        {
+            Id = x.Id,
+            CreatedAt = x.CreatedAt,
+            Status = x.Status,
+            Description = x.Description,
+            CarId = x.CarId,
+            CarBrand = x.Car?.Brand,
+            CarModel = x.Car?.Model,
+            CarLicensePlate = x.Car?.LicensePlate,
+            CustomerName = x.Car?.Customer != null
+                ? $"{x.Car.Customer.FirstName} {x.Car.Customer.LastName}"
+                : null,
+            Tasks = x.Tasks.Select(t => new ServiceTaskDto
+            {
+                Id = t.Id,
+                Name = t.Name,
+                Price = t.Price,
+                ServiceOrderId = t.ServiceOrderId,
+                Parts = t.ServiceTaskParts.Select(stp => new ServiceTaskPartDto
+                {
+                    Id = stp.Id,
+                    ServiceTaskId = stp.ServiceTaskId,
+                    SparePartId = stp.SparePartId,
+                    SparePartName = stp.SparePart?.Name,
+                    Quantity = stp.Quantity,
+                    UnitPrice = stp.UnitPrice
+                }).ToList()
+            }).ToList(),
+            Mechanics = x.ServiceOrderMechanics
+                .Where(m => m.Mechanic != null)
+                .Select(m => new MechanicSummaryDto
+                {
+                    Id = m.Mechanic!.Id,
+                    FullName = $"{m.Mechanic.FirstName} {m.Mechanic.LastName}",
+                    Specialization = m.Mechanic.Specialization
+                }).ToList(),
+            Invoice = x.Invoice == null ? null : new InvoiceSummaryDto
+            {
+                Id = x.Invoice.Id,
+                InvoiceNumber = x.Invoice.InvoiceNumber,
+                IsPaid = x.Invoice.IsPaid
+            }
+        };
+    }
 
     public async Task<ServiceOrder?> GetByIdForEditAsync(Guid id) =>
         await _db.ServiceOrders.FindAsync(id);
@@ -116,6 +181,7 @@ public class ServiceOrderService : IServiceOrderService
     {
         var serviceOrder = await _db.ServiceOrders
             .Include(x => x.Tasks)
+                .ThenInclude(t => t.ServiceTaskParts)
             .Include(x => x.Invoice)
             .FirstOrDefaultAsync(x => x.Id == serviceOrderId);
 

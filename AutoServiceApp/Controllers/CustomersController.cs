@@ -33,7 +33,7 @@ public class CustomersController : Controller
 
     public async Task<IActionResult> Edit(Guid id)
     {
-        var customer = await _customers.GetByIdAsync(id);
+        var customer = await _customers.GetByIdForEditAsync(id);
         return customer == null ? NotFound() : View(customer);
     }
 
@@ -49,7 +49,7 @@ public class CustomersController : Controller
 
     public async Task<IActionResult> Delete(Guid id)
     {
-        var customer = await _customers.GetByIdAsync(id);
+        var customer = await _customers.GetByIdForEditAsync(id);
         return customer == null ? NotFound() : View(customer);
     }
 
@@ -61,7 +61,7 @@ public class CustomersController : Controller
         if (result == null) return NotFound();
         if (!result.Value)
         {
-            var customer = await _customers.GetByIdAsync(id);
+            var customer = await _customers.GetByIdForEditAsync(id);
             ModelState.AddModelError(string.Empty, "Zákazníka nelze smazat, protože má přiřazená auta.");
             return View(customer);
         }

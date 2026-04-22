@@ -1,3 +1,4 @@
+using AutoServiceApp.Dtos;
 using AutoServiceApp.Models;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
@@ -5,8 +6,9 @@ namespace AutoServiceApp.Services;
 
 public interface ICustomerService
 {
-    Task<IList<Customer>> GetAllAsync();
-    Task<Customer?> GetByIdAsync(Guid id);
+    Task<IList<CustomerDto>> GetAllAsync();
+    Task<CustomerDto?> GetByIdAsync(Guid id);
+    Task<Customer?> GetByIdForEditAsync(Guid id);
     Task<IList<SelectListItem>> GetSelectListAsync();
     Task CreateAsync(Customer customer);
     Task UpdateAsync(Customer customer);
